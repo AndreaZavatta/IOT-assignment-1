@@ -1,7 +1,7 @@
 // C++ code
 //
 
-#define EI_ARDUINO_INTERRUPTED_PIN // to enable pin states functionality 
+#define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
 
 
@@ -10,37 +10,32 @@ int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
 
-void game()
-{
+void game() {
   gamestart = true;
 }
 
-void func()
-{
-  while (!gamestart){
+void func() {
+  while (!gamestart) {
     long startSec = millis();
     Serial.println("Ciao!");
-    
-    while(millis() - startSec < 10000 && !gamestart)
-    {
+    do {
       analogWrite(3, brightness);
       brightness += fadeamount;
-      if (brightness == 0 || brightness == 255){
+      if (brightness == 0 || brightness == 255) {
         fadeamount = -fadeamount;
       }
       delay(15);
-    }
-    if(!gamestart) {
+    } while (millis() - startSec < 10000 && !gamestart);
+    if (!gamestart) {
       //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-      //sleep_enable(); 
+      //sleep_enable();
       //sleep_mode();
       Serial.println("dormendo");
     }
   }
 }
 
-void setup()
-{
+void setup() {
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(6, OUTPUT);
@@ -56,13 +51,11 @@ void setup()
   Serial.begin(9600);
   pinMode(3, OUTPUT);
   func();
-  analogWrite(3,0);
+  analogWrite(3, 0);
   //read potenziometro.
   difficulty = analogRead(A5);
   Serial.println(difficulty);
 }
 
-void loop()
-{ 
-  
+void loop() {
 }
