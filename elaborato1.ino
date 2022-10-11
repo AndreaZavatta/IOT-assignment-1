@@ -3,6 +3,16 @@
 
 #define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
+#define BTN_BLUE 11
+#define BTN_GREEN 10
+#define BTN_ORANGE 9
+#define BTN_YELLOW 8
+#define LED_BLUE 7
+#define LED_GREEN 6
+#define LED_ORANGE 5
+#define LED_YELLOW 4
+#define LED_WHITE 3
+
 
 
 int difficulty;
@@ -10,8 +20,30 @@ int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
 
-void game() {
-  gamestart = true;
+
+void setup() {
+  pinMode(LED_YELLOW, OUTPUT);
+  pinMode(LED_ORANGE, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(BTN_YELLOW, INPUT);
+  pinMode(BTN_ORANGE, INPUT);
+  pinMode(BTN_GREEN, INPUT);
+  pinMode(BTN_BLUE, INPUT);
+
+  pinMode(A5, OUTPUT);
+
+  enableInterrupt(11, game, CHANGE);
+  Serial.begin(9600);
+  pinMode(LED_WHITE, OUTPUT);
+  func();
+  digitalWrite(LED_WHITE, LOW);
+  //read potenziometro.
+  difficulty = analogRead(A5);
+  Serial.println(difficulty);
+}
+
+void loop() {
 }
 
 void func() {
@@ -19,7 +51,7 @@ void func() {
     long startSec = millis();
     Serial.println("Ciao!");
     do {
-      analogWrite(3, brightness);
+      analogWrite(LED_WHITE, brightness);
       brightness += fadeamount;
       if (brightness == 0 || brightness == 255) {
         fadeamount = -fadeamount;
@@ -35,27 +67,8 @@ void func() {
   }
 }
 
-void setup() {
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-  pinMode(11, INPUT);
-
-  pinMode(A5, OUTPUT);
-
-  enableInterrupt(11, game, CHANGE);
-  Serial.begin(9600);
-  pinMode(3, OUTPUT);
-  func();
-  analogWrite(3, 0);
-  //read potenziometro.
-  difficulty = analogRead(A5);
-  Serial.println(difficulty);
+void game() {
+  gamestart = true;
 }
 
-void loop() {
-}
+
