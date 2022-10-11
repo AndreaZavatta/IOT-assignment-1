@@ -12,6 +12,9 @@
 #define LED_ORANGE 5
 #define LED_YELLOW 4
 #define LED_WHITE 3
+#define MIN_BRIGHTNESS 0
+#define MAX_BRIGHTNESS 255
+#define PORT 9600
 
 
 
@@ -33,8 +36,8 @@ void setup() {
 
   pinMode(A5, OUTPUT);
 
-  enableInterrupt(11, game, CHANGE);
-  Serial.begin(9600);
+  enableInterrupt(BTN_BLUE, game, CHANGE);
+  Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
   func();
   digitalWrite(LED_WHITE, LOW);
@@ -53,7 +56,7 @@ void func() {
     do {
       analogWrite(LED_WHITE, brightness);
       brightness += fadeamount;
-      if (brightness == 0 || brightness == 255) {
+      if (brightness == MIN_BRIGHTNESS || brightness == MAX_BRIGHTNESS) {
         fadeamount = -fadeamount;
       }
       delay(15);
