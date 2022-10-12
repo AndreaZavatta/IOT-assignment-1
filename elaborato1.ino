@@ -33,7 +33,7 @@ void sleep() {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
-  Serial.println("sveglio"); 
+  Serial.println("sveglio");
   sleep_disable();
   //func();
 }
@@ -66,30 +66,32 @@ void setup() {
 
 void loop() {
 }
-
+void fading() {
+  analogWrite(LED_WHITE, brightness);
+  brightness += fadeamount;
+  if (brightness == MIN_BRIGHTNESS || brightness == MAX_BRIGHTNESS) {
+    fadeamount = -fadeamount;
+  }
+  delay(15);
+}
 void func() {
   while (!gamestart) {
     long startSec = millis();
     Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
     do {
-      analogWrite(LED_WHITE, brightness);
-      brightness += fadeamount;
-      if (brightness == MIN_BRIGHTNESS || brightness == MAX_BRIGHTNESS) {
-        fadeamount = -fadeamount;
-      }
-      delay(15);
+      fading();
     } while (millis() - startSec < 10000 && !gamestart);
     if (!gamestart) {
-        sleep();
-      }
+      sleep();
+    }
   }
   Serial.println("sto giocando!!");
 }
 
 void game() {
   long ts = micros();
-  if (ts - prevts > 200000){
-    if (sleeping){
+  if (ts - prevts > 200000) {
+    if (sleeping) {
       sleeping = false;
     } else {
       gamestart = true;
