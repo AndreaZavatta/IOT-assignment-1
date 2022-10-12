@@ -3,6 +3,7 @@
 
 #define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
+#include <avr/sleep.h>
 #define BTN_BLUE 11
 #define BTN_GREEN 10
 #define BTN_ORANGE 9
@@ -17,14 +18,28 @@
 #define PORT 9600
 
 
-
+bool sleeping;
 int difficulty;
 int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
+long prevts = 0;
 
+void sleep() {
+  sleeping = true;
+  Serial.println("dormendo");
+  Serial.flush();
+  digitalWrite(LED_WHITE, LOW);
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_mode();
+  Serial.println("sveglio"); 
+  sleep_disable();
+  //func();
+}
 
 void setup() {
+  sleeping = false;
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_ORANGE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
@@ -36,6 +51,8 @@ void setup() {
 
   pinMode(A5, OUTPUT);
 
+  //enableInterrupt(BTN_BLUE, wakeUp, RISING);
+
   enableInterrupt(BTN_BLUE, game, CHANGE);
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
@@ -44,6 +61,7 @@ void setup() {
   //read potenziometro.
   difficulty = analogRead(A5);
   Serial.println(difficulty);
+  Serial.println("difficlolta printata");
 }
 
 void loop() {
@@ -52,7 +70,7 @@ void loop() {
 void func() {
   while (!gamestart) {
     long startSec = millis();
-    Serial.println("Ciao!");
+    Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
     do {
       analogWrite(LED_WHITE, brightness);
       brightness += fadeamount;
@@ -62,16 +80,20 @@ void func() {
       delay(15);
     } while (millis() - startSec < 10000 && !gamestart);
     if (!gamestart) {
-      //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-      //sleep_enable();
-      //sleep_mode();
-      Serial.println("dormendo");
-    }
+        sleep();
+      }
   }
+  Serial.println("sto giocando!!");
 }
 
 void game() {
-  gamestart = true;
+  long ts = micros();
+  if (ts - prevts > 200000){
+    if (sleeping){
+      sleeping = false;
+    } else {
+      gamestart = true;
+    }
+    prevts = ts;
+  }
 }
-
-
