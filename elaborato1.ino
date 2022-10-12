@@ -1,6 +1,4 @@
 // C++ code
-//
-
 #define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
@@ -35,11 +33,6 @@ void sleep() {
   sleep_mode();
   Serial.println("sveglio");
   sleep_disable();
-  //func();
-}
-
-void abc(){
-  Serial.println("abc");
 }
 
 void setup() {
@@ -55,7 +48,6 @@ void setup() {
 
   pinMode(A5, OUTPUT);
 
-  //enableInterrupt(BTN_BLUE, wakeUp, RISING);
   enableInterrupt(BTN_YELLOW, changeSleep, CHANGE);
   enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
@@ -63,6 +55,7 @@ void setup() {
   enableInterrupt(BTN_BLUE, game, CHANGE);
   //questo è solo per scopo illustrativo!!!! disabiliti un pin, serve per riusare i bottoni durante il gioco e nella fase iniziale 
   disableInterrupt(BTN_GREEN);
+  
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
   func();
