@@ -38,6 +38,10 @@ void sleep() {
   //func();
 }
 
+void abc(){
+  Serial.println("abc");
+}
+
 void setup() {
   sleeping = false;
   pinMode(LED_YELLOW, OUTPUT);
@@ -52,8 +56,12 @@ void setup() {
   pinMode(A5, OUTPUT);
 
   //enableInterrupt(BTN_BLUE, wakeUp, RISING);
+  enableInterrupt(BTN_YELLOW, changeSleep, CHANGE);
+  enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
+  enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
 
   enableInterrupt(BTN_BLUE, game, CHANGE);
+  disableInterrupt(digitalPinToInterrupt(BTN_GREEN));
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
   func();
@@ -66,6 +74,7 @@ void setup() {
 
 void loop() {
 }
+
 void fading() {
   analogWrite(LED_WHITE, brightness);
   brightness += fadeamount;
@@ -74,6 +83,7 @@ void fading() {
   }
   delay(15);
 }
+
 void func() {
   while (!gamestart) {
     long startSec = millis();
@@ -88,11 +98,16 @@ void func() {
   Serial.println("sto giocando!!");
 }
 
+void changeSleep()
+{
+  sleeping = false;  
+}
+
 void game() {
   long ts = micros();
   if (ts - prevts > 200000) {
     if (sleeping) {
-      sleeping = false;
+      changeSleep();
     } else {
       gamestart = true;
     }
