@@ -61,7 +61,7 @@ void setup() {
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
 
   enableInterrupt(BTN_BLUE, game, CHANGE);
-  disableInterrupt(digitalPinToInterrupt(BTN_GREEN));
+  disableInterrupt(BTN_GREEN);
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
   func();
