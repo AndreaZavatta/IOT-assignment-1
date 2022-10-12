@@ -27,7 +27,6 @@ void sleep() {
   sleeping = true;
   Serial.println("dormendo");
   Serial.flush();
-  digitalWrite(LED_WHITE, LOW);
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
