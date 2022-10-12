@@ -61,6 +61,7 @@ void setup() {
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
 
   enableInterrupt(BTN_BLUE, game, CHANGE);
+  //questo è solo per scopo illustrativo!!!! disabiliti un pin, serve per riusare i bottoni durante il gioco e nella fase iniziale 
   disableInterrupt(BTN_GREEN);
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
