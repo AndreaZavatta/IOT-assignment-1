@@ -235,3 +235,4 @@ void loop() {
   //
 }
 //missing -life, +points, printing points.
+//missing random times, difficulty.
