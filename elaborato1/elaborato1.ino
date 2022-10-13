@@ -73,10 +73,10 @@ void pressBtn(int led) {
     if (i != -1) {
       generated[i] = 0;
       digitalWrite(led, HIGH);
-      if (checkWin()) {
+      /*if (checkWin()) {
         Serial.println("Win");
-        points ++;
-      }
+        points++;
+      }*/
     }
 
     prevts = ts;
@@ -171,6 +171,7 @@ void enableInterruptForSequence(){
   enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
   enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
+
 void setup() {
   Serial.begin(PORT);
   life = 3;
@@ -178,7 +179,6 @@ void setup() {
   sleeping = false;
   setPin();
   enableInterruptForStartingGame();
-  
   while (!gamestart) {
     long startSec = millis();
     Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
@@ -189,24 +189,44 @@ void setup() {
       sleep();
     }
   }
-  
-  Serial.println("sto giocando!!");
+  //Serial.println("sto giocando!!");
   digitalWrite(LED_WHITE, LOW);
   //read potenziometro.
   difficulty = analogRead(A5);
-  Serial.println(difficulty);
-  Serial.println("difficlolta printata");
+  //Serial.println(difficulty);
+  //Serial.println("difficlolta printata");
   disableAllInterrupts();
   enableInterruptForSequence();
   resetSeq();
 }
 
 void loop() {
+  Serial.println("GO!");  
   delay(T1);
   int num = randomSeq();
   for ( int i = 0; i < num; i++) {
     digitalWrite(generated[i], HIGH);
   }
+
   delay(T2);
   lightOut();
+
+  //long a = time - micros();
+  //Serial.println(a);
+  //Serial.println(time);
+  long time = millis();
+  Serial.println("schiaccia");
+  do{
+    if(checkWin()){
+      Serial.println("YOU WON");
+      break;
+    }
+    //Serial.println("Ciao");
+  } while(millis() - time < T3);
+  Serial.println("fuori");
+  
+  for ( int i = 0; i < num; i++) {
+    Serial.println(generated[i]);
+  }
+  resetSeq();
 }
