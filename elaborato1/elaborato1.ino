@@ -21,6 +21,8 @@ int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
 long prevts = 0;
+int[4] generated;
+int[4] clicked;
 
 int life;
 int points;
@@ -144,5 +146,19 @@ void game() {
       gamestart = true;
     }
     prevts = ts;
+  }
+}
+
+void randomSeq() {
+  int num = random(1,5);
+  for (int i = 0; i < num; i++) {
+    generated[i] = random(LED_YELLOW, LED_BLUE + 1);
+  }
+}
+
+void resetSeq() {
+  for (int i = 0; i < 4; i++) {
+    generated[i] = 0;
+    clicked[i] = 0;
   }
 }
