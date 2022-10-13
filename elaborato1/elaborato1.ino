@@ -25,6 +25,13 @@ long prevts = 0;
 int life;
 int points;
 
+void disableAllInterrupts(){
+  disableInterrupt(BTN_GREEN);
+  disableInterrupt(BTN_YELLOW);
+  disableInterrupt(BTN_ORANGE);
+  disableInterrupt(BTN_BLUE);
+}
+
 void sleep() {
   sleeping = true;
   Serial.println("dormendo");
@@ -67,11 +74,7 @@ void setup() {
   difficulty = analogRead(A5);
   Serial.println(difficulty);
   Serial.println("difficlolta printata");
-
-  disableInterrupt(BTN_GREEN);
-  disableInterrupt(BTN_YELLOW);
-  disableInterrupt(BTN_ORANGE);
-  disableInterrupt(BTN_BLUE);
+  disableAllInterrupts();
 }
 
 void pressGreen(){
