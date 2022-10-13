@@ -1,5 +1,4 @@
 // C++ code
-//#define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include"./header.h"
@@ -131,6 +130,7 @@ void game() {
   }
 }
 
+//not working, you cant put more than one time a number (4,4,6,7 is possible).
 int randomSeq() {
   int num = random(1,5);
   for (int i = 0; i < num; i++) {
@@ -207,26 +207,31 @@ void loop() {
   for ( int i = 0; i < num; i++) {
     digitalWrite(generated[i], HIGH);
   }
-
+  //testing
+  for ( int i = 0; i < num; i++) {
+    Serial.println(generated[i]);
+  }
+  //
   delay(T2);
   lightOut();
 
-  //long a = time - micros();
-  //Serial.println(a);
-  //Serial.println(time);
   long time = millis();
+  //testing
   Serial.println("schiaccia");
+  //
+
   do{
     if(checkWin()){
       Serial.println("YOU WON");
       break;
     }
-    //Serial.println("Ciao");
   } while(millis() - time < T3);
+
+  //testing
   Serial.println("fuori");
-  
   for ( int i = 0; i < num; i++) {
     Serial.println(generated[i]);
   }
-  resetSeq();
+  //
 }
+//missing -life, +points, printing points.
