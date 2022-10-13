@@ -115,20 +115,6 @@ void fading() {
   delay(15);
 }
 
-void func() {
-  while (!gamestart) {
-    long startSec = millis();
-    Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
-    do {
-      fading();
-    } while (millis() - startSec < 10000 && !gamestart);
-    if (!gamestart) {
-      sleep();
-    }
-  }
-  Serial.println("sto giocando!!");
-}
-
 void changeSleep() {
   sleeping = false;
 }
@@ -159,10 +145,8 @@ void resetSeq() {
   }
 }
 
-void setup() {
-  life = 3;
-  points = 0;
-  sleeping = false;
+void setPin(){
+  pinMode(LED_WHITE, OUTPUT);
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_ORANGE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
@@ -171,30 +155,49 @@ void setup() {
   pinMode(BTN_ORANGE, INPUT);
   pinMode(BTN_GREEN, INPUT);
   pinMode(BTN_BLUE, INPUT);
-
   pinMode(A5, OUTPUT);
+}
 
+void enableInterruptForStartingGame(){
   enableInterrupt(BTN_YELLOW, changeSleep, CHANGE);
   enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
-
   enableInterrupt(BTN_BLUE, game, CHANGE);
-  //questo è solo per scopo illustrativo!!!! disabiliti un pin, serve per riusare i bottoni durante il gioco e nella fase iniziale
-  disableInterrupt(BTN_GREEN);
+}
 
+void enableInterruptForSequence(){
+  enableInterrupt(BTN_GREEN, pressGreen, CHANGE);
+  enableInterrupt(BTN_YELLOW, pressYellow, CHANGE);
+  enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
+  enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
+}
+void setup() {
   Serial.begin(PORT);
-  pinMode(LED_WHITE, OUTPUT);
-  func();
+  life = 3;
+  points = 0;
+  sleeping = false;
+  setPin();
+  enableInterruptForStartingGame();
+  
+  while (!gamestart) {
+    long startSec = millis();
+    Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
+    do {
+      fading();
+    } while (millis() - startSec < 10000 && !gamestart);
+    if (!gamestart) {
+      sleep();
+    }
+  }
+  
+  Serial.println("sto giocando!!");
   digitalWrite(LED_WHITE, LOW);
   //read potenziometro.
   difficulty = analogRead(A5);
   Serial.println(difficulty);
   Serial.println("difficlolta printata");
   disableAllInterrupts();
-  enableInterrupt(BTN_GREEN, pressGreen, CHANGE);
-  enableInterrupt(BTN_YELLOW, pressYellow, CHANGE);
-  enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
-  enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
+  enableInterruptForSequence();
   resetSeq();
 }
 
