@@ -1,5 +1,5 @@
 // C++ code
-#define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
+//#define EI_ARDUINO_INTERRUPTED_PIN  // to enable pin states functionality
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #define BTN_BLUE 11
@@ -15,13 +15,15 @@
 #define MAX_BRIGHTNESS 255
 #define PORT 9600
 
-
 bool sleeping;
 int difficulty;
 int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
 long prevts = 0;
+
+int life;
+int points;
 
 void sleep() {
   sleeping = true;
@@ -35,6 +37,8 @@ void sleep() {
 }
 
 void setup() {
+  life = 3;
+  points = 0;
   sleeping = false;
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_ORANGE, OUTPUT);
@@ -52,9 +56,9 @@ void setup() {
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
 
   enableInterrupt(BTN_BLUE, game, CHANGE);
-  //questo è solo per scopo illustrativo!!!! disabiliti un pin, serve per riusare i bottoni durante il gioco e nella fase iniziale 
+  //questo è solo per scopo illustrativo!!!! disabiliti un pin, serve per riusare i bottoni durante il gioco e nella fase iniziale
   disableInterrupt(BTN_GREEN);
-  
+
   Serial.begin(PORT);
   pinMode(LED_WHITE, OUTPUT);
   func();
@@ -63,9 +67,42 @@ void setup() {
   difficulty = analogRead(A5);
   Serial.println(difficulty);
   Serial.println("difficlolta printata");
+
+  disableInterrupt(BTN_GREEN);
+  disableInterrupt(BTN_YELLOW);
+  disableInterrupt(BTN_ORANGE);
+  disableInterrupt(BTN_BLUE);
+}
+
+void pressGreen(){
+  presspin(BTN_GREEN);
+}
+
+void pressYellow(){
+  presspin(BTN_YELLOW);
+}
+
+void pressOrange(){
+  presspin(BTN_ORANGE);
+}
+
+void pressBlue(){
+  presspin(BTN_BLUE);
+}
+
+void presspin(int pin) {
+  long ts = micros();
+  if (ts - prevts > 200000) {
+    Serial.println(pin);
+    prevts = ts;
+  }
 }
 
 void loop() {
+  enableInterrupt(BTN_GREEN, pressGreen, CHANGE);
+  enableInterrupt(BTN_YELLOW, pressYellow, CHANGE);
+  enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
+  enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
 
 void fading() {
@@ -91,9 +128,8 @@ void func() {
   Serial.println("sto giocando!!");
 }
 
-void changeSleep()
-{
-  sleeping = false;  
+void changeSleep() {
+  sleeping = false;
 }
 
 void game() {
