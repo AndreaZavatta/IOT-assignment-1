@@ -52,8 +52,8 @@ int checkLed(int led) {
     if (generated[i] == led){
       return i;
     }
-  return -1;
   }
+  return -1;
 }
 
 bool checkWin() {
@@ -226,12 +226,15 @@ void loop() {
       break;
     }
   } while(millis() - time < T3);
-
+  lightOut();
   //testing
   Serial.println("fuori");
   for ( int i = 0; i < num; i++) {
     Serial.println(generated[i]);
   }
+  //la reset va messa perche senno i led rimangono accesi.
+  resetSeq();
+  delay(5000);
   //
 }
 //missing -life, +points, printing points.
