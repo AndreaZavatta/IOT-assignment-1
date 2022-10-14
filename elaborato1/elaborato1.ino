@@ -131,15 +131,6 @@ void game() {
   }
 }
 
-bool checkGenerated(int pin) {
-  for (int i = 0; i < LED_NUMBER; i++) {
-    if (generated[i] == pin) {
-      return true;
-    }
-  }
-  return false;
-}
-
 int randomSeq() {
   int num = random(1,5);
   for (int i = 0; i < num; i++) {
