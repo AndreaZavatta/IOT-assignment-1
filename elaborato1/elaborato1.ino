@@ -72,10 +72,6 @@ void pressBtn(int led) {
     if (i != -1) {
       generated[i] = 0;
       digitalWrite(led, HIGH);
-      /*if (checkWin()) {
-        Serial.println("Win");
-        points++;
-      }*/
     }
 
     prevts = ts;
@@ -222,20 +218,23 @@ void loop() {
 
   do{
     if(checkWin()){
-      Serial.println("YOU WON");
+      points++;
+      Serial.print("YOU WON, Points:");
+      Serial.println(points);
       break;
     }
   } while(millis() - time < T3);
+
   lightOut();
+  
   //testing
-  Serial.println("fuori");
+  /*Serial.println("fuori");
   for ( int i = 0; i < num; i++) {
     Serial.println(generated[i]);
-  }
+  }*/
+
   //la reset va messa perche senno i led rimangono accesi.
   resetSeq();
-  delay(5000);
-  //
 }
 //missing -life, +points, printing points.
 //missing random times, difficulty.
