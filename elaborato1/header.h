@@ -26,8 +26,6 @@ void changeSleep();
 
 void game();
 
-bool checkGenerated(int pin);
-
 int randomSeq();
 
 void resetSeq();
