@@ -139,7 +139,6 @@ bool checkGenerated(int pin) {
   return false;
 }
 
-//not working, you cant put more than one time a number (4,4,6,7 is possible).
 int randomSeq() {
   int num = random(1,5);
   for (int i = 0; i < num; i++) {
