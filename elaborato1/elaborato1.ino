@@ -14,6 +14,7 @@
 #define MIN_BRIGHTNESS 0
 #define MAX_BRIGHTNESS 255
 #define PORT 9600
+#define LED_NUMBER 4
 
 bool sleeping;
 int difficulty;
@@ -21,7 +22,7 @@ int brightness = 0;
 int fadeamount = 5;
 bool gamestart = false;
 long prevts = 0;
-int generated[4];
+int generated[LED_NUMBER];
 int T1 = 2000;
 int T2 = 5000;
 int T3 = 10000;
@@ -48,7 +49,7 @@ void sleep() {
 }
 
 int checkLed(int led) {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < LED_NUMBER; i++) {
     if (generated[i] == led){
       return i;
     }
@@ -57,7 +58,7 @@ int checkLed(int led) {
 }
 
 bool checkWin() {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < LED_NUMBER; i++) {
     if (generated[i] != 0) {
       return false;
     }
@@ -126,17 +127,21 @@ void game() {
   }
 }
 
-//not working, you cant put more than one time a number (4,4,6,7 is possible).
 int randomSeq() {
   int num = random(1,5);
   for (int i = 0; i < num; i++) {
-    generated[i] = random(LED_YELLOW, LED_BLUE + 1);
+    int led = random(LED_YELLOW, LED_BLUE + 1);
+    if (checkLed(led) == -1) {
+      generated[i] = led;
+    } else {
+      i--;
+    }
   }
   return num;
 }
 
 void resetSeq() {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < LED_NUMBER; i++) {
     generated[i] = 0;
   }
 }
