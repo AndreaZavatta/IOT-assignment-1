@@ -15,6 +15,14 @@
 #define MAX_BRIGHTNESS 255
 #define PORT 9600
 #define LED_NUMBER 4
+#define SETUP 0
+#define LED_BLINKING 1
+#define RANDOM_LED 2
+#define CLICK_BUTTONS 3
+#define WIN 4
+#define LOSS 5
+
+
 bool doDelay;
 bool sleeping;
 int difficulty;
@@ -87,7 +95,7 @@ void pressBtn(int led) {
   }
 }
 void gameOver(){
-  phase = 5;
+  phase = LOSS;
   doDelay = false;
   
 }
@@ -200,15 +208,22 @@ void setup() {
   setPin();
 }
 
+/*
+#define SETUP 0;
+#define LED_BLINKING 1;
+#define RANDOM_LED 2;
+#define CLICK_BUTTONS 3;
+#define WIN 4;
+#define LOSS 5;
+*/
 void loop() {
   switch (phase) {
     //setup the game variables and all other things you will need to reset when you lose.
     //this case will be called when game over.
     //should be complete.
-    case 0:
+    case SETUP:
       {
         enableInterruptForStartingGame();
-        
         T1 = 2000;
         T2 = 5000;
         T3 = 10000;
@@ -223,7 +238,7 @@ void loop() {
         break;
       }
     //this is the idle phase, when the led is blinking and can go sleep.
-    case 1:
+    case LED_BLINKING:
       {
         //blinking red led, waiting for start game.
         while (!gamestart) {
@@ -245,7 +260,7 @@ void loop() {
         phase = 2;
         break;
       }
-    case 2:
+    case RANDOM_LED:
       {
         /*
           in questa fase vengono mostrati i led casuali
@@ -280,7 +295,7 @@ void loop() {
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
     //if you correctly recreate the pattern you will go to the win section (5)
     //if you dont do the pattern in time you will go to the lose section (6)
-    case 3:
+    case CLICK_BUTTONS:
       {
         disableAllInterrupts();
         enableInterruptForSequence();
@@ -304,7 +319,7 @@ void loop() {
       }
 
     //win situation
-    case 4:
+    case WIN:
       {
         points++;
         //T2 /= factor;
@@ -315,7 +330,7 @@ void loop() {
         break;
       }
     //lose situation
-    case 5:
+    case LOSS:
       {
 
         lightOut();
@@ -338,4 +353,4 @@ void loop() {
       break;
   }
 }
-//manca il potenziometro, la questione del fattore che non ho ben capito cosa sia e il -vita nella fase di show del pattern
+//manca il potenziometro, la questione del fattore che non ho ben capito cosa sia
