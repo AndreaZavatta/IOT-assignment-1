@@ -1,7 +1,7 @@
 // C++ code
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
-#include"./header.h"
+#include "./header.h"
 #define BTN_BLUE 11
 #define BTN_GREEN 10
 #define BTN_ORANGE 9
@@ -23,14 +23,15 @@ int fadeamount = 5;
 bool gamestart = false;
 long prevts = 0;
 int generated[LED_NUMBER];
-int T1 = 2000;
-int T2 = 5000;
-int T3 = 10000;
-
+int T1;
+int T2;
+int T3;
+int phase;
 int life;
 int points;
+int factor;
 
-void disableAllInterrupts(){
+void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
   disableInterrupt(BTN_YELLOW);
   disableInterrupt(BTN_ORANGE);
@@ -50,7 +51,7 @@ void sleep() {
 
 int checkLed(int led) {
   for (int i = 0; i < LED_NUMBER; i++) {
-    if (generated[i] == led){
+    if (generated[i] == led) {
       return i;
     }
   }
@@ -70,28 +71,28 @@ void pressBtn(int led) {
   long ts = micros();
   if (ts - prevts > 200000) {
     int i = checkLed(led);
+    digitalWrite(led, HIGH);
     if (i != -1) {
       generated[i] = 0;
-      digitalWrite(led, HIGH);
     }
 
     prevts = ts;
   }
 }
 
-void pressGreen(){
+void pressGreen() {
   pressBtn(LED_GREEN);
 }
 
-void pressYellow(){
+void pressYellow() {
   pressBtn(LED_YELLOW);
 }
 
-void pressOrange(){
+void pressOrange() {
   pressBtn(LED_ORANGE);
 }
 
-void pressBlue(){
+void pressBlue() {
   pressBtn(LED_BLUE);
 }
 
@@ -128,7 +129,7 @@ void game() {
 }
 
 int randomSeq() {
-  int num = random(1,5);
+  int num = random(1, 5);
   for (int i = 0; i < num; i++) {
     int led = random(LED_YELLOW, LED_BLUE + 1);
     if (checkLed(led) == -1) {
@@ -146,7 +147,7 @@ void resetSeq() {
   }
 }
 
-void setPin(){
+void setPin() {
   pinMode(LED_WHITE, OUTPUT);
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_ORANGE, OUTPUT);
@@ -159,14 +160,14 @@ void setPin(){
   pinMode(A5, OUTPUT);
 }
 
-void enableInterruptForStartingGame(){
+void enableInterruptForStartingGame() {
   enableInterrupt(BTN_YELLOW, changeSleep, CHANGE);
   enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
   enableInterrupt(BTN_BLUE, game, CHANGE);
 }
 
-void enableInterruptForSequence(){
+void enableInterruptForSequence() {
   enableInterrupt(BTN_GREEN, pressGreen, CHANGE);
   enableInterrupt(BTN_YELLOW, pressYellow, CHANGE);
   enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
@@ -175,9 +176,7 @@ void enableInterruptForSequence(){
 
 void setup() {
   Serial.begin(PORT);
-  life = 3;
-  points = 0;
-  sleeping = false;
+
   setPin();
   enableInterruptForStartingGame();
   while (!gamestart) {
@@ -202,36 +201,76 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("GO!");  
+  if (phase == 0) {
+    T1 = 2000;
+    T2 = 5000;
+    T3 = 10000;
+    factor = 2;
+    life = 3;
+    points = 0;
+    sleeping = false;
+  }
+  phase++;
+  /* Nella phase 1 vengono generati casualmente 
+  i led che si devono illuminare e vengono accesi.*/
+
+  Serial.println("GO!");
   delay(T1);
   int num = randomSeq();
-  for ( int i = 0; i < num; i++) {
+  for (int i = 0; i < num; i++) {
     digitalWrite(generated[i], HIGH);
   }
   //testing
-  for ( int i = 0; i < num; i++) {
+  for (int i = 0; i < num; i++) {
     Serial.println(generated[i]);
   }
-  //
+  /*
+    Nella phase 2 non si possono premere i bottoni
+    perchè il gioco sta ancora facendo vedere i led
+    illuminati casualmente.
+
+    Basta mettere un interrupt al bottone che quando schiacciato
+    va in una phase in cui hai perso la partita.
+    */
   delay(T2);
   lightOut();
 
+  /*
+    nella phase 3 vengono schiacciati i bottoni e viene controllata
+    che la sequenza dei bottoni premuti sia la stessa dei led accesi.
+    */
   long time = millis();
   //testing
   Serial.println("schiaccia");
   //
 
-  do{
-    if(checkWin()){
+  do {
+    if (checkWin()) {
       points++;
-      Serial.print("YOU WON, Points:");
+      T2 /= factor;
+      T3 /= factor;
+      Serial.print("New point! Score: ");
       Serial.println(points);
       break;
     }
-  } while(millis() - time < T3);
+  } while (millis() - time < T3);
 
+  if (!checkWin()) {
+    lightOut();
+    digitalWrite(LED_WHITE, HIGH);
+    delay(1000);
+    digitalWrite(LED_WHITE, LOW);
+    life--;
+    delay(1000);
+    Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
+    delay(1000);
+  }
+  if (life == 0) {
+    Serial.println("Game Over. Final Score: " + (String)points);
+    phase = 0;
+  }
   lightOut();
-  
+
   //testing
   /*Serial.println("fuori");
   for ( int i = 0; i < num; i++) {
@@ -240,6 +279,8 @@ void loop() {
 
   //la reset va messa perche senno i led rimangono accesi.
   resetSeq();
+
+  //
 }
 //missing -life, +points, printing points.
 //missing random times, difficulty.
