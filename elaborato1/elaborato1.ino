@@ -20,7 +20,7 @@ bool sleeping;
 int difficulty;
 int brightness = 0;
 int fadeamount = 5;
-bool gamestart = false;
+bool gamestart;
 long prevts = 0;
 int generated[LED_NUMBER];
 int T1;
@@ -75,7 +75,6 @@ void pressBtn(int led) {
     if (i != -1) {
       generated[i] = 0;
     }
-
     prevts = ts;
   }
 }
@@ -176,55 +175,149 @@ void enableInterruptForSequence() {
 
 void setup() {
   Serial.begin(PORT);
-
   setPin();
   enableInterruptForStartingGame();
-  while (!gamestart) {
-    long startSec = millis();
-    Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
-    do {
-      fading();
-    } while (millis() - startSec < 10000 && !gamestart);
-    if (!gamestart) {
-      sleep();
-    }
-  }
-  //Serial.println("sto giocando!!");
-  digitalWrite(LED_WHITE, LOW);
-  //read potenziometro.
-  difficulty = analogRead(A5);
-  //Serial.println(difficulty);
-  //Serial.println("difficlolta printata");
-  disableAllInterrupts();
-  enableInterruptForSequence();
-  resetSeq();
+  T1 = 2000;
+  T2 = 5000;
+  T3 = 10000;
+  factor = 2;
+  life = 1;
+  points = 0;
+  sleeping = false;
 }
 
 void loop() {
-  if (phase == 0) {
-    T1 = 2000;
-    T2 = 5000;
-    T3 = 10000;
-    factor = 2;
-    life = 3;
-    points = 0;
-    sleeping = false;
+
+
+  switch (phase) {
+    case 9:
+      {
+        setPin();
+        enableInterruptForStartingGame();
+        T1 = 2000;
+        T2 = 5000;
+        T3 = 10000;
+        factor = 2;
+        life = 1;
+        points = 0;
+        sleeping = false;
+        phase = 0;
+        gamestart = false;
+        break;
+      }
+    case 0:
+      {
+        //blinking red led, waiting for start game.
+        while (!gamestart) {
+          long startSec = millis();
+          Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
+          do {
+            fading();
+          } while (millis() - startSec < 10000 && !gamestart);
+          if (!gamestart) {
+            sleep();
+          }
+        }
+        digitalWrite(LED_WHITE, LOW);
+        //read potenziometro.
+        difficulty = analogRead(A5);
+        disableAllInterrupts();
+        enableInterruptForSequence();
+        //resetSeq();
+        phase = 2;
+        break;
+      }
+    case 2:
+      {
+        //show pattern, life -1 if button is clicked
+        resetSeq();
+        Serial.println("case 1");
+        Serial.println("GO!");
+        delay(T1);
+        int num = randomSeq();
+        for (int i = 0; i < num; i++) {
+          digitalWrite(generated[i], HIGH);
+        }
+        //testing
+        for (int i = 0; i < num; i++) {
+          Serial.println(generated[i]);
+        }
+        delay(T2);
+        lightOut();
+        phase = 1;
+        break;
+      }
+    case 1:
+      {
+        //recreate pattern, se il random ha messo 3 hai 3 bottoni, poi vai in fase 3 e controlli.
+        Serial.println("case 2");
+        long time = millis();
+        //testing
+        Serial.println("schiaccia");
+        //
+        do {
+          //modifica array risultati.
+
+        } while (millis() - time < T3);
+        //CAMBIA QUI FASE PERDO NON HO CLICCATO IN TEMPO!!.
+        lightOut();
+        phase = 5;
+        break;
+      }
+    case 3:
+      {
+        //check if win or not.
+        Serial.println("case 3");
+        if (checkWin()) {
+          Serial.println("non devo entrare qui");
+          phase = 4;
+        } else {
+          Serial.println("entro in caso 5");
+          phase = 5;
+        }
+        break;
+      }
+    case 4:
+      {
+        //win
+        Serial.println("case 4");
+        points++;
+        //T2 /= factor;
+        //T3 /= factor;
+        Serial.print("New point! Score: ");
+        Serial.println(points);
+        phase = 2;
+        break;
+      }
+    case 5:
+      {
+        //lost, todo.
+        Serial.println("case 5");
+        digitalWrite(LED_WHITE, HIGH);
+        delay(1000);
+        digitalWrite(LED_WHITE, LOW);
+        life--;
+        delay(1000);
+        Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
+        delay(1000);
+        if (life == 0) {
+          phase = 9;
+          Serial.println("YOU LOST");
+        } else {
+          phase = 2;
+        }
+        break;
+      }
+    default:
+      Serial.println("default");
   }
-  phase++;
-  /* Nella phase 1 vengono generati casualmente 
+}
+
+/* Nella phase 1 vengono generati casualmente 
   i led che si devono illuminare e vengono accesi.*/
 
-  Serial.println("GO!");
-  delay(T1);
-  int num = randomSeq();
-  for (int i = 0; i < num; i++) {
-    digitalWrite(generated[i], HIGH);
-  }
-  //testing
-  for (int i = 0; i < num; i++) {
-    Serial.println(generated[i]);
-  }
-  /*
+
+/*
     Nella phase 2 non si possono premere i bottoni
     perchè il gioco sta ancora facendo vedere i led
     illuminati casualmente.
@@ -232,29 +325,14 @@ void loop() {
     Basta mettere un interrupt al bottone che quando schiacciato
     va in una phase in cui hai perso la partita.
     */
-  delay(T2);
-  lightOut();
 
-  /*
+
+/*
     nella phase 3 vengono schiacciati i bottoni e viene controllata
     che la sequenza dei bottoni premuti sia la stessa dei led accesi.
     */
-  long time = millis();
-  //testing
-  Serial.println("schiaccia");
-  //
 
-  do {
-    if (checkWin()) {
-      points++;
-      T2 /= factor;
-      T3 /= factor;
-      Serial.print("New point! Score: ");
-      Serial.println(points);
-      break;
-    }
-  } while (millis() - time < T3);
-
+/*
   if (!checkWin()) {
     lightOut();
     digitalWrite(LED_WHITE, HIGH);
@@ -271,17 +349,14 @@ void loop() {
     phase = 0;
   }
   lightOut();
-
-  //testing
-  /*Serial.println("fuori");
+*/
+//testing
+/*Serial.println("fuori");
   for ( int i = 0; i < num; i++) {
     Serial.println(generated[i]);
   }*/
 
-  //la reset va messa perche senno i led rimangono accesi.
-  //resetSeq();
+//la reset va messa perche senno i led rimangono accesi.
+//resetSeq();
 
-  //
-}
-//missing -life, +points, printing points.
-//missing random times, difficulty.
+//
