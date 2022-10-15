@@ -354,4 +354,5 @@ void loop() {
       break;
   }
 }
-//manca il potenziometro, e la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
+/*manca il potenziometro, e la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
+mancano poi le print giuste*/
