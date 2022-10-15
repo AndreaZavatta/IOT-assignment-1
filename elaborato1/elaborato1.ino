@@ -87,7 +87,7 @@ void pressBtn(int led) {
   }
 }
 void gameOver(){
-  phase = 6;
+  phase = 5;
   doDelay = false;
   
 }
@@ -247,10 +247,22 @@ void loop() {
       }
     case 2:
       {
+        /*
+          in questa fase vengono mostrati i led casuali
+          quindi non possiamo schiacciare nessun bottone
+          la variabile doDelay viene impostata qui a true,
+          e viene modificata a false dall'interrupt in caso venga schiacciato
+          un bottone (la funzione dell'interrupt si chiama gameOver())
+        */
         doDelay = true;
+        /*
+          phase = 3 lo setto in questo punto, non si può settare sotto
+          perchè la phase potrebbe essere modificata dall'interrupt
+          in quanto, se viene schiacciato il bottone il programma deve andare
+          nella phase 5
+        */
         phase = 3;
         disableAllInterrupts();
-        //show pattern, life -1 if button is clicked missing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         resetSeq();
         Serial.println("GO!");
         delay(T1);
@@ -262,10 +274,7 @@ void loop() {
         enableInterruptForGameover();       
         long int time = millis();
         while(millis()-time<T2 && doDelay){} 
-        //metti il ciclo.
         lightOut();
-        //after the pattern is shown lets go to phase 3
-        
         break;
       }
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
@@ -280,29 +289,22 @@ void loop() {
           //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButtonPressed()) {
             wrongButton = false;
-            phase = 6;
+            phase = 5;
             break;
           }
         } while (millis() - time < T3 && !checkWin());
         delay(1000);
         lightOut();
-        phase = 4;
-        break;
-      }
-    //probabilmente si puo togliere non so.
-    //check if you win or not
-    case 4:
-      {
         if (checkWin()) {
-          phase = 5;
+          phase = 4;
         } else {
-          phase = 6;
+          phase = 5;
         }
         break;
       }
 
     //win situation
-    case 5:
+    case 4:
       {
         points++;
         //T2 /= factor;
@@ -313,7 +315,7 @@ void loop() {
         break;
       }
     //lose situation
-    case 6:
+    case 5:
       {
 
         lightOut();
