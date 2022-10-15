@@ -199,7 +199,7 @@ void loop() {
         T2 = 5000;
         T3 = 10000;
         factor = 2;
-        life = 1;
+        life = 3;
         points = 0;
         sleeping = false;
         phase = 1;
