@@ -192,6 +192,9 @@ void setup() {
 
 void loop() {
   switch (phase) {
+    //setup the game variables and all other things you will need to reset when you lose.
+    //this case will be called when game over.
+    //should be complete.
     case 0:
       {
         enableInterruptForStartingGame();
@@ -202,11 +205,13 @@ void loop() {
         life = 3;
         points = 0;
         sleeping = false;
-        phase = 1;
         gamestart = false;
         randomSeed(analogRead(A0));
+        //after setting up all variables i can go to the phase 1 of the game.
+        phase = 1;
         break;
       }
+    //this is the idle phase, when the led is blinking and can go sleep.
     case 1:
       {
         //blinking red led, waiting for start game.
@@ -225,13 +230,13 @@ void loop() {
         difficulty = analogRead(A5);
         disableAllInterrupts();
         enableInterruptForSequence();
-        //resetSeq();
+        //if game starts, we go to phase 2, where the pattern will be shown. 
         phase = 2;
         break;
       }
     case 2:
       {
-        //show pattern, life -1 if button is clicked missing
+        //show pattern, life -1 if button is clicked missing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         resetSeq();
         Serial.println("GO!");
         delay(T1);
@@ -239,23 +244,20 @@ void loop() {
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-        //testing
-        /*for (int i = 0; i < num; i++) {
-          Serial.println(generated[i]);
-        }*/
         delay(T2);
         lightOut();
+        //after the pattern is shown lets go to phase 3
         phase = 3;
         break;
       }
+    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
+    //if you correctly recreate the pattern you will go to the win section (5)
+    //if you dont do the pattern in time you will go to the lose section (6)
     case 3:
       {
         long time = millis();
-        //testing
-        Serial.println("schiaccia");
-        //
         do {
-          //modifica array risultati.
+          //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButtonPressed()) {
             wrongButton = false;
             phase = 6;
@@ -266,9 +268,10 @@ void loop() {
         phase = 4;
         break;
       }
+    //probabilmente si puo togliere non so.
+    //check if you win or not
     case 4:
       {
-        //check if win or not.
         if (checkWin()) {
           phase = 5;
         } else {
@@ -276,9 +279,9 @@ void loop() {
         }
         break;
       }
+    //win situation
     case 5:
       {
-        //win
         points++;
         //T2 /= factor;
         //T3 /= factor;
@@ -287,10 +290,10 @@ void loop() {
         phase = 2;
         break;
       }
+    //lose situation
     case 6:
       {
         lightOut();
-        //lost
         life--;
         Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
         digitalWrite(LED_WHITE, HIGH);
@@ -310,51 +313,4 @@ void loop() {
       break;
   }
 }
-
-/* Nella phase 1 vengono generati casualmente 
-  i led che si devono illuminare e vengono accesi.*/
-
-
-/*
-    Nella phase 2 non si possono premere i bottoni
-    perchè il gioco sta ancora facendo vedere i led
-    illuminati casualmente.
-
-    Basta mettere un interrupt al bottone che quando schiacciato
-    va in una phase in cui hai perso la partita.
-    */
-
-
-/*
-    nella phase 3 vengono schiacciati i bottoni e viene controllata
-    che la sequenza dei bottoni premuti sia la stessa dei led accesi.
-    */
-
-/*
-  if (!checkWin()) {
-    lightOut();
-    digitalWrite(LED_WHITE, HIGH);
-    delay(1000);
-    digitalWrite(LED_WHITE, LOW);
-    life--;
-    delay(1000);
-    Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
-    delay(1000);
-  }
-  if (life == 0) {
-    Serial.println("Game Over. Final Score: " + (String)points);
-    delay(10000);
-    phase = 0;
-  }
-  lightOut();
-*/
-//testing
-/*Serial.println("fuori");
-  for ( int i = 0; i < num; i++) {
-    Serial.println(generated[i]);
-  }*/
-
-//la reset va messa perche senno i led rimangono accesi.
-//resetSeq();
-
-//
+//manca il potenziometro, la questione del fattore che non ho ben capito cosa sia e il -vita nella fase di show del pattern
