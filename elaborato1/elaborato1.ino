@@ -15,7 +15,7 @@
 #define MAX_BRIGHTNESS 255
 #define PORT 9600
 #define LED_NUMBER 4
-
+bool doDelay;
 bool sleeping;
 int difficulty;
 int brightness = 0;
@@ -88,6 +88,8 @@ void pressBtn(int led) {
 }
 void gameOver(){
   phase = 6;
+  doDelay = false;
+  
 }
 void pressGreen() {
   pressBtn(LED_GREEN);
@@ -206,6 +208,7 @@ void loop() {
     case 0:
       {
         enableInterruptForStartingGame();
+        doDelay = true;
         T1 = 2000;
         T2 = 5000;
         T3 = 10000;
@@ -255,8 +258,10 @@ void loop() {
           digitalWrite(generated[i], HIGH);
         }
         
-        enableInterruptForGameover();        
-        delay(T2);
+        enableInterruptForGameover();       
+        long int time = millis();
+        while(millis()-time<T2 && doDelay){} 
+        //metti il ciclo.
         lightOut();
         //after the pattern is shown lets go to phase 3
         
