@@ -20,8 +20,6 @@ void lightOut();
 
 void fading();
 
-void func();
-
 void changeSleep();
 
 void game();

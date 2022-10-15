@@ -26,7 +26,7 @@ int generated[LED_NUMBER];
 int T1;
 int T2;
 int T3;
-int phase;
+int phase = 0;
 int life;
 int points;
 int factor;
@@ -42,6 +42,7 @@ void sleep() {
   sleeping = true;
   Serial.println("dormendo");
   Serial.flush();
+  digitalWrite(LED_WHITE, LOW);
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
@@ -173,26 +174,27 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
 
+bool func(){
+  return true;  
+}
+
 void setup() {
   Serial.begin(PORT);
   setPin();
-  enableInterruptForStartingGame();
+  /*enableInterruptForStartingGame();
   T1 = 2000;
   T2 = 5000;
   T3 = 10000;
   factor = 2;
   life = 1;
   points = 0;
-  sleeping = false;
+  sleeping = false;*/
 }
 
 void loop() {
-
-
   switch (phase) {
-    case 9:
+    case 0:
       {
-        setPin();
         enableInterruptForStartingGame();
         T1 = 2000;
         T2 = 5000;
@@ -201,11 +203,11 @@ void loop() {
         life = 1;
         points = 0;
         sleeping = false;
-        phase = 0;
+        phase = 1;
         gamestart = false;
         break;
       }
-    case 0:
+    case 1:
       {
         //blinking red led, waiting for start game.
         while (!gamestart) {
@@ -229,7 +231,7 @@ void loop() {
       }
     case 2:
       {
-        //show pattern, life -1 if button is clicked
+        //show pattern, life -1 if button is clicked missing
         resetSeq();
         Serial.println("case 1");
         Serial.println("GO!");
@@ -244,10 +246,10 @@ void loop() {
         }
         delay(T2);
         lightOut();
-        phase = 1;
+        phase = 3;
         break;
       }
-    case 1:
+    case 3:
       {
         //recreate pattern, se il random ha messo 3 hai 3 bottoni, poi vai in fase 3 e controlli.
         Serial.println("case 2");
@@ -258,26 +260,24 @@ void loop() {
         do {
           //modifica array risultati.
 
-        } while (millis() - time < T3);
-        //CAMBIA QUI FASE PERDO NON HO CLICCATO IN TEMPO!!.
+        } while (millis() - time < T3 && func());
         lightOut();
-        phase = 5;
+        phase = 4;
         break;
       }
-    case 3:
+    case 4:
       {
         //check if win or not.
         Serial.println("case 3");
         if (checkWin()) {
           Serial.println("non devo entrare qui");
-          phase = 4;
-        } else {
-          Serial.println("entro in caso 5");
           phase = 5;
+        } else {
+          phase = 6;
         }
         break;
       }
-    case 4:
+    case 5:
       {
         //win
         Serial.println("case 4");
@@ -289,7 +289,7 @@ void loop() {
         phase = 2;
         break;
       }
-    case 5:
+    case 6:
       {
         //lost, todo.
         Serial.println("case 5");
@@ -301,7 +301,7 @@ void loop() {
         Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
         delay(1000);
         if (life == 0) {
-          phase = 9;
+          phase = 0;
           Serial.println("YOU LOST");
         } else {
           phase = 2;
