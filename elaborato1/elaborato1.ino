@@ -267,6 +267,7 @@ void loop() {
   }
   if (life == 0) {
     Serial.println("Game Over. Final Score: " + (String)points);
+    delay(10000);
     phase = 0;
   }
   lightOut();
@@ -278,7 +279,7 @@ void loop() {
   }*/
 
   //la reset va messa perche senno i led rimangono accesi.
-  resetSeq();
+  //resetSeq();
 
   //
 }
