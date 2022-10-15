@@ -208,7 +208,7 @@ void loop() {
     case 0:
       {
         enableInterruptForStartingGame();
-        doDelay = true;
+        
         T1 = 2000;
         T2 = 5000;
         T3 = 10000;
@@ -247,6 +247,7 @@ void loop() {
       }
     case 2:
       {
+        doDelay = true;
         phase = 3;
         disableAllInterrupts();
         //show pattern, life -1 if button is clicked missing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
