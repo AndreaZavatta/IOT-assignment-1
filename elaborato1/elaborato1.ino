@@ -86,7 +86,9 @@ void pressBtn(int led) {
     prevts = ts;
   }
 }
-
+void gameOver(){
+  phase = 6;
+}
 void pressGreen() {
   pressBtn(LED_GREEN);
 }
@@ -180,6 +182,12 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
   enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
+void enableInterruptForGameover(){
+  enableInterrupt(BTN_GREEN, gameOver, CHANGE);
+  enableInterrupt(BTN_YELLOW, gameOver, CHANGE);
+  enableInterrupt(BTN_BLUE, gameOver, CHANGE);
+  enableInterrupt(BTN_ORANGE, gameOver, CHANGE);
+}
 
 bool wrongButtonPressed() {
   return wrongButton;
@@ -228,14 +236,16 @@ void loop() {
         digitalWrite(LED_WHITE, LOW);
         //read potenziometro.
         difficulty = analogRead(A5);
-        disableAllInterrupts();
-        enableInterruptForSequence();
+        
+        
         //if game starts, we go to phase 2, where the pattern will be shown. 
         phase = 2;
         break;
       }
     case 2:
       {
+        phase = 3;
+        disableAllInterrupts();
         //show pattern, life -1 if button is clicked missing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         resetSeq();
         Serial.println("GO!");
@@ -244,10 +254,12 @@ void loop() {
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
+        
+        enableInterruptForGameover();        
         delay(T2);
         lightOut();
         //after the pattern is shown lets go to phase 3
-        phase = 3;
+        
         break;
       }
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
@@ -255,6 +267,8 @@ void loop() {
     //if you dont do the pattern in time you will go to the lose section (6)
     case 3:
       {
+        disableAllInterrupts();
+        enableInterruptForSequence();
         long time = millis();
         do {
           //if you click the wrong button the else in the pressBtn will be triggered.
@@ -264,6 +278,7 @@ void loop() {
             break;
           }
         } while (millis() - time < T3 && !checkWin());
+        delay(1000);
         lightOut();
         phase = 4;
         break;
@@ -279,6 +294,7 @@ void loop() {
         }
         break;
       }
+
     //win situation
     case 5:
       {
@@ -293,6 +309,7 @@ void loop() {
     //lose situation
     case 6:
       {
+
         lightOut();
         life--;
         Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
