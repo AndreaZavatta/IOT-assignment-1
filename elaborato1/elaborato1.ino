@@ -224,10 +224,11 @@ void loop() {
     case SETUP:
       {
         enableInterruptForStartingGame();
+        //mettere T1,T2,T3 e factor casuali! 
         T1 = 2000;
         T2 = 5000;
         T3 = 10000;
-        factor = 2;
+        factor = 1;
         life = 3;
         points = 0;
         sleeping = false;
@@ -322,8 +323,8 @@ void loop() {
     case WIN:
       {
         points++;
-        //T2 /= factor;
-        //T3 /= factor;
+        T2 /= factor;
+        T3 /= factor;
         Serial.print("New point! Score: ");
         Serial.println(points);
         phase = 2;
@@ -353,4 +354,4 @@ void loop() {
       break;
   }
 }
-//manca il potenziometro, la questione del fattore che non ho ben capito cosa sia
+//manca il potenziometro, e la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
