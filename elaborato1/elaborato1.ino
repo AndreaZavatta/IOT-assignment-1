@@ -181,13 +181,6 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
 
-void enableInterruptForSequence1() {
-  enableInterrupt(BTN_GREEN, setWrongButton, CHANGE);
-  enableInterrupt(BTN_YELLOW, setWrongButton, CHANGE);
-  enableInterrupt(BTN_BLUE, setWrongButton, CHANGE);
-  enableInterrupt(BTN_ORANGE, setWrongButton, CHANGE);
-}
-
 bool wrongButtonPressed() {
   return wrongButton;
 }
