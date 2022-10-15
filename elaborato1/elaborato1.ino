@@ -30,12 +30,17 @@ int phase = 0;
 int life;
 int points;
 int factor;
+bool wrongButton = false;
 
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
   disableInterrupt(BTN_YELLOW);
   disableInterrupt(BTN_ORANGE);
   disableInterrupt(BTN_BLUE);
+}
+
+void setWrongButton(){
+  wrongButton = true;
 }
 
 void sleep() {
@@ -50,15 +55,6 @@ void sleep() {
   sleep_disable();
 }
 
-int checkLed(int led) {
-  for (int i = 0; i < LED_NUMBER; i++) {
-    if (generated[i] == led) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 bool checkWin() {
   for (int i = 0; i < LED_NUMBER; i++) {
     if (generated[i] != 0) {
@@ -68,6 +64,15 @@ bool checkWin() {
   return true;
 }
 
+int checkLed(int led) {
+  for (int i = 0; i < LED_NUMBER; i++) {
+    if (generated[i] == led) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 void pressBtn(int led) {
   long ts = micros();
   if (ts - prevts > 200000) {
@@ -75,6 +80,8 @@ void pressBtn(int led) {
     digitalWrite(led, HIGH);
     if (i != -1) {
       generated[i] = 0;
+    } else {
+      setWrongButton();
     }
     prevts = ts;
   }
@@ -174,21 +181,20 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
 }
 
-bool func(){
-  return true;  
+void enableInterruptForSequence1() {
+  enableInterrupt(BTN_GREEN, setWrongButton, CHANGE);
+  enableInterrupt(BTN_YELLOW, setWrongButton, CHANGE);
+  enableInterrupt(BTN_BLUE, setWrongButton, CHANGE);
+  enableInterrupt(BTN_ORANGE, setWrongButton, CHANGE);
+}
+
+bool wrongButtonPressed() {
+  return wrongButton;
 }
 
 void setup() {
   Serial.begin(PORT);
   setPin();
-  /*enableInterruptForStartingGame();
-  T1 = 2000;
-  T2 = 5000;
-  T3 = 10000;
-  factor = 2;
-  life = 1;
-  points = 0;
-  sleeping = false;*/
 }
 
 void loop() {
@@ -205,6 +211,7 @@ void loop() {
         sleeping = false;
         phase = 1;
         gamestart = false;
+        randomSeed(analogRead(A0));
         break;
       }
     case 1:
@@ -233,7 +240,6 @@ void loop() {
       {
         //show pattern, life -1 if button is clicked missing
         resetSeq();
-        Serial.println("case 1");
         Serial.println("GO!");
         delay(T1);
         int num = randomSeq();
@@ -241,9 +247,9 @@ void loop() {
           digitalWrite(generated[i], HIGH);
         }
         //testing
-        for (int i = 0; i < num; i++) {
+        /*for (int i = 0; i < num; i++) {
           Serial.println(generated[i]);
-        }
+        }*/
         delay(T2);
         lightOut();
         phase = 3;
@@ -251,16 +257,18 @@ void loop() {
       }
     case 3:
       {
-        //recreate pattern, se il random ha messo 3 hai 3 bottoni, poi vai in fase 3 e controlli.
-        Serial.println("case 2");
         long time = millis();
         //testing
         Serial.println("schiaccia");
         //
         do {
           //modifica array risultati.
-
-        } while (millis() - time < T3 && func());
+          if (wrongButtonPressed()) {
+            wrongButton = false;
+            phase = 6;
+            break;
+          }
+        } while (millis() - time < T3 && !checkWin());
         lightOut();
         phase = 4;
         break;
@@ -268,9 +276,7 @@ void loop() {
     case 4:
       {
         //check if win or not.
-        Serial.println("case 3");
         if (checkWin()) {
-          Serial.println("non devo entrare qui");
           phase = 5;
         } else {
           phase = 6;
@@ -280,7 +286,6 @@ void loop() {
     case 5:
       {
         //win
-        Serial.println("case 4");
         points++;
         //T2 /= factor;
         //T3 /= factor;
@@ -291,14 +296,13 @@ void loop() {
       }
     case 6:
       {
-        //lost, todo.
-        Serial.println("case 5");
-        digitalWrite(LED_WHITE, HIGH);
-        delay(1000);
-        digitalWrite(LED_WHITE, LOW);
+        lightOut();
+        //lost
         life--;
-        delay(1000);
         Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
+        digitalWrite(LED_WHITE, HIGH);
+        delay(2000);
+        digitalWrite(LED_WHITE, LOW);
         delay(1000);
         if (life == 0) {
           phase = 0;
@@ -309,7 +313,8 @@ void loop() {
         break;
       }
     default:
-      Serial.println("default");
+      phase = 0;
+      break;
   }
 }
 
