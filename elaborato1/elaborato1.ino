@@ -47,7 +47,7 @@ void disableAllInterrupts() {
   disableInterrupt(BTN_BLUE);
 }
 
-void setWrongButton(){
+void setWrongButton() {
   wrongButton = true;
 }
 
@@ -209,7 +209,7 @@ void loop() {
       {
         resetSeq();
         enableInterruptForStartingGame();
-        //mettere T1,T2,T3 e factor casuali! 
+        //mettere T1,T2,T3 e factor casuali!
         T1 = 2000;
         T2 = 5000;
         T3 = 10000;
@@ -226,29 +226,26 @@ void loop() {
     //this is the idle phase, when the led is blinking and can go sleep.
     case LED_BLINKING:
       {
+        long startSec = millis();
+        Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
         //blinking red led, waiting for start game.
-        while (!gamestart) {
-          long startSec = millis();
-          Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
-          do {
-            fading();
-          } while (millis() - startSec < 10000 && !gamestart);
-          if (!gamestart) {
-            sleep();
-          }
+        do {
+          fading();
+        } while (millis() - startSec < 10000 && !gamestart);
+        if (!gamestart) {
+          sleep();
+        } else {
+          digitalWrite(LED_WHITE, LOW);
+          //read potenziometro.
+          difficulty = (analogRead(A5) / 256) + 1;
+          //if game starts, we go to phase 2, where the pattern will be shown.
+          phase = RANDOM_LED;
         }
-        digitalWrite(LED_WHITE, LOW);
-        //read potenziometro.
-        difficulty = (analogRead(A5)/256)+1;
-        Serial.println(difficulty);
-        //if game starts, we go to phase 2, where the pattern will be shown. 
-        phase = RANDOM_LED;
-        //time
         break;
       }
     case RANDOM_LED:
       {
-        
+
         resetSeq();
         disableAllInterrupts();
         Serial.println("GO!");
@@ -259,9 +256,8 @@ void loop() {
         }
         long int time = millis();
         phase = CLICK_BUTTONS;
-        while(millis()-time < T2 && phase == CLICK_BUTTONS){
-          if (digitalRead(BTN_BLUE)==HIGH || digitalRead(BTN_GREEN)==HIGH ||
-          digitalRead(BTN_ORANGE)==HIGH || digitalRead(BTN_YELLOW)==HIGH){
+        while (millis() - time < T2 && phase == CLICK_BUTTONS) {
+          if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
             phase = LOSS;
           }
         }
