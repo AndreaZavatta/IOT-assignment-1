@@ -1,10 +1,12 @@
 void disableAllInterrupts();
 
+void setWrongButton();
+
 void sleep();
 
-int checkLed(int led);
-
 bool checkWin();
+
+int checkLed(int led);
 
 void pressBtn(int led);
 
@@ -27,3 +29,11 @@ void game();
 int randomSeq();
 
 void resetSeq();
+
+void setPin();
+
+void enableInterruptForStartingGame();
+
+void enableInterruptForSequence();
+
+bool wrongButtonPressed();

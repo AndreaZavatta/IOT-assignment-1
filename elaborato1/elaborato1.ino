@@ -116,7 +116,7 @@ void loop() {
         long time = millis();
         do {
           //if you click the wrong button the else in the pressBtn will be triggered.
-          if (wrongButtonPressed()) {
+          if (wrongButton) {
             wrongButton = false;
             phase = LOSS;
             disableAllInterrupts();
@@ -213,21 +213,6 @@ int checkLed(int led) {
   return -1;
 }
 
-void pressBtn(int led) {
-  long ts = micros();
-  if (ts - prevts > 200000) {
-    int i = checkLed(led);
-    digitalWrite(led, HIGH);
-    if (i != -1) {
-      generated[i] = 0;
-    } else {
-      setWrongButton();
-    }
-    prevts = ts;
-  }
-}
-
-
 
 void pressGreen() {
   pressBtn(LED_GREEN);
@@ -243,6 +228,20 @@ void pressOrange() {
 
 void pressBlue() {
   pressBtn(LED_BLUE);
+}
+
+void pressBtn(int led) {
+  long ts = micros();
+  if (ts - prevts > 200000) {
+    int i = checkLed(led);
+    digitalWrite(led, HIGH);
+    if (i != -1) {
+      generated[i] = 0;
+    } else {
+      setWrongButton();
+    }
+    prevts = ts;
+  }
 }
 
 void lightOut() {
@@ -261,10 +260,6 @@ void fading() {
   delay(15);
 }
 
-void changeSleep() {
-  sleeping = false;
-}
-
 void game() {
   long ts = micros();
   if (ts - prevts > 400000) {
@@ -276,6 +271,11 @@ void game() {
     prevts = ts;
   }
 }
+
+void changeSleep() {
+  sleeping = false;
+}
+
 
 int randomSeq() {
   int num = random(1, 5);
@@ -323,7 +323,4 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_ORANGE, pressOrange, FALLING);
 }
 
-bool wrongButtonPressed() {
-  return wrongButton;
-}
 
