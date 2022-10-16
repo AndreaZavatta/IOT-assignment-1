@@ -25,7 +25,7 @@
 
 bool doDelay;
 bool sleeping;
-int difficulty;
+int difficulty;//the factor F
 int brightness = 0;
 int fadeamount = 5;
 bool gamestart;
@@ -37,8 +37,140 @@ int T3;
 int phase;
 int life;
 int points;
-int factor;
 bool wrongButton = false;
+
+void setup() {
+  Serial.begin(PORT);
+  setPin();
+  phase = SETUP;
+}
+
+void loop() {
+  switch (phase) {
+    //setup the game variables and all other things you will need to reset when you lose.
+    //this case will be called when game over.
+    case SETUP:
+      {
+        resetSeq();
+        enableInterruptForStartingGame();
+        //mettere T1,T2,T3 e factor casuali!
+        T1 = 2000;
+        T2 = 5000;
+        T3 = 10000;
+        life = 3;
+        points = 0;
+        sleeping = false;
+        gamestart = false;
+        randomSeed(analogRead(A0));
+        //after setting up all variables i can go to the phase 1 of the game.
+        phase = LED_BLINKING;
+        break;
+      }
+    //this is the idle phase, when the led is blinking and can go sleep.
+    case LED_BLINKING:
+      {
+        long startSec = millis();
+        Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
+        //blinking red led, waiting for start game.
+        do {
+          fading();
+        } while (millis() - startSec < 10000 && !gamestart);
+        if (!gamestart) {
+          sleep();
+        } else {
+          digitalWrite(LED_WHITE, LOW);
+          //read potenziometro.
+          difficulty = (analogRead(A5) / 256) + 1;
+          //if game starts, we go to phase 2, where the pattern will be shown.
+          phase = RANDOM_LED;
+        }
+        break;
+      }
+    case RANDOM_LED:
+      {
+        resetSeq();
+        disableAllInterrupts();
+        Serial.println("GO!");
+        delay(T1);
+        int num = randomSeq();
+        for (int i = 0; i < num; i++) {
+          digitalWrite(generated[i], HIGH);
+        }
+        long int time = millis();
+        phase = CLICK_BUTTONS;
+        while (millis() - time < T2 && phase == CLICK_BUTTONS) {
+          if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
+            phase = LOSS;
+          }
+        }
+        lightOut();
+        break;
+      }
+    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
+    //if you correctly recreate the pattern you will go to the win section (5)
+    //if you dont do the pattern in time you will go to the lose section (6)
+    case CLICK_BUTTONS:
+      {
+        disableAllInterrupts();
+        enableInterruptForSequence();
+        long time = millis();
+        do {
+          //if you click the wrong button the else in the pressBtn will be triggered.
+          if (wrongButtonPressed()) {
+            wrongButton = false;
+            phase = LOSS;
+            disableAllInterrupts();
+            break;
+          }
+        } while (millis() - time < T3 && !checkWin());
+        disableAllInterrupts();
+        delay(250);
+        lightOut();
+        if (checkWin()) {
+          phase = WIN;
+        } else {
+          phase = LOSS;
+        }
+        break;
+      }
+    //win situation
+    case WIN:
+      {
+        points++;
+        // x% di T2
+        T2 = T2 - (T2 * difficulty / 10);
+        T3 = T3 - (T3 * difficulty / 10);
+        Serial.print("New point! Score: ");
+        Serial.println(points);
+        phase = RANDOM_LED;
+        break;
+      }
+    //lose situation
+    case LOSS:
+      {
+        lightOut();
+        life--;
+        Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
+        digitalWrite(LED_WHITE, HIGH);
+        delay(2000);
+        digitalWrite(LED_WHITE, LOW);
+        delay(1000);
+        if (life == 0) {
+          phase = SETUP;
+          Serial.println("YOU LOST");
+        } else {
+          phase = RANDOM_LED;
+        }
+        break;
+      }
+    default:
+      phase = SETUP;
+      break;
+  }
+}
+/*la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
+mancano poi le print giuste*/
+
 
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
@@ -195,134 +327,3 @@ bool wrongButtonPressed() {
   return wrongButton;
 }
 
-void setup() {
-  Serial.begin(PORT);
-  setPin();
-  phase = SETUP;
-}
-
-void loop() {
-  switch (phase) {
-    //setup the game variables and all other things you will need to reset when you lose.
-    //this case will be called when game over.
-    case SETUP:
-      {
-        resetSeq();
-        enableInterruptForStartingGame();
-        //mettere T1,T2,T3 e factor casuali!
-        T1 = 2000;
-        T2 = 5000;
-        T3 = 10000;
-        factor = 1;
-        life = 3;
-        points = 0;
-        sleeping = false;
-        gamestart = false;
-        randomSeed(analogRead(A0));
-        //after setting up all variables i can go to the phase 1 of the game.
-        phase = LED_BLINKING;
-        break;
-      }
-    //this is the idle phase, when the led is blinking and can go sleep.
-    case LED_BLINKING:
-      {
-        long startSec = millis();
-        Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
-        //blinking red led, waiting for start game.
-        do {
-          fading();
-        } while (millis() - startSec < 10000 && !gamestart);
-        if (!gamestart) {
-          sleep();
-        } else {
-          digitalWrite(LED_WHITE, LOW);
-          //read potenziometro.
-          difficulty = (analogRead(A5) / 256) + 1;
-          //if game starts, we go to phase 2, where the pattern will be shown.
-          phase = RANDOM_LED;
-        }
-        break;
-      }
-    case RANDOM_LED:
-      {
-
-        resetSeq();
-        disableAllInterrupts();
-        Serial.println("GO!");
-        delay(T1);
-        int num = randomSeq();
-        for (int i = 0; i < num; i++) {
-          digitalWrite(generated[i], HIGH);
-        }
-        long int time = millis();
-        phase = CLICK_BUTTONS;
-        while (millis() - time < T2 && phase == CLICK_BUTTONS) {
-          if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
-            phase = LOSS;
-          }
-        }
-        lightOut();
-        break;
-      }
-    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
-    //if you correctly recreate the pattern you will go to the win section (5)
-    //if you dont do the pattern in time you will go to the lose section (6)
-    case CLICK_BUTTONS:
-      {
-        disableAllInterrupts();
-        enableInterruptForSequence();
-        long time = millis();
-        do {
-          //if you click the wrong button the else in the pressBtn will be triggered.
-          if (wrongButtonPressed()) {
-            wrongButton = false;
-            phase = LOSS;
-            break;
-          }
-        } while (millis() - time < T3 && !checkWin());
-        delay(250);
-        lightOut();
-        if (checkWin()) {
-          phase = WIN;
-        } else {
-          phase = LOSS;
-        }
-        break;
-      }
-    //win situation
-    case WIN:
-      {
-        points++;
-        //T2 /= factor;
-        //T3 /= factor;
-        Serial.print("New point! Score: ");
-        Serial.println(points);
-        phase = RANDOM_LED;
-        break;
-      }
-    //lose situation
-    case LOSS:
-      {
-
-        lightOut();
-        life--;
-        Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
-        digitalWrite(LED_WHITE, HIGH);
-        delay(2000);
-        digitalWrite(LED_WHITE, LOW);
-        delay(1000);
-        if (life == 0) {
-          phase = SETUP;
-          Serial.println("YOU LOST");
-        } else {
-          phase = RANDOM_LED;
-        }
-        break;
-      }
-    default:
-      phase = SETUP;
-      break;
-  }
-}
-/*manca il potenziometro, e la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
-mancano poi le print giuste*/
