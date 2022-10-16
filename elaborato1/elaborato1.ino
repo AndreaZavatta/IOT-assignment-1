@@ -168,9 +168,6 @@ void loop() {
       break;
   }
 }
-/*la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
-mancano poi le print giuste*/
-
 
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
@@ -212,7 +209,6 @@ int checkLed(int led) {
   }
   return -1;
 }
-
 
 void pressGreen() {
   pressBtn(LED_GREEN);
@@ -276,7 +272,6 @@ void changeSleep() {
   sleeping = false;
 }
 
-
 int randomSeq() {
   int num = random(1, 5);
   for (int i = 0; i < num; i++) {
@@ -323,4 +318,5 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_ORANGE, pressOrange, FALLING);
 }
 
-
+/*la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
+mancano poi le print giuste*/
