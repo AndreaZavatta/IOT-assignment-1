@@ -94,11 +94,12 @@ void pressBtn(int led) {
     prevts = ts;
   }
 }
+
 void gameOver(){
   phase = LOSS;
   doDelay = false;
-  
 }
+
 void pressGreen() {
   pressBtn(LED_GREEN);
 }
@@ -247,9 +248,8 @@ void loop() {
         }
         digitalWrite(LED_WHITE, LOW);
         //read potenziometro.
-        difficulty = analogRead(A5);
-        
-        
+        difficulty = (analogRead(A5)/256)+1;
+        Serial.println(difficulty);
         //if game starts, we go to phase 2, where the pattern will be shown. 
         phase = RANDOM_LED;
         break;
@@ -273,15 +273,13 @@ void loop() {
         */
         phase = CLICK_BUTTONS;
         disableAllInterrupts();
-        
         Serial.println("GO!");
         delay(T1);
-        enableInterruptForGameover(); 
+        enableInterruptForGameover();
         int num = randomSeq();
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-              
         long int time = millis();
         while(millis()-time < T2 && doDelay){}
         lightOut();
