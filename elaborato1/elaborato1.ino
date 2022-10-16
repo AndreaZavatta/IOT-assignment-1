@@ -34,7 +34,7 @@ int generated[LED_NUMBER];
 int T1;
 int T2;
 int T3;
-int phase = 0;
+int phase;
 int life;
 int points;
 int factor;
@@ -206,6 +206,7 @@ bool wrongButtonPressed() {
 void setup() {
   Serial.begin(PORT);
   setPin();
+  phase = SETUP;
 }
 
 /*
@@ -235,7 +236,7 @@ void loop() {
         gamestart = false;
         randomSeed(analogRead(A0));
         //after setting up all variables i can go to the phase 1 of the game.
-        phase = 1;
+        phase = LED_BLINKING;
         break;
       }
     //this is the idle phase, when the led is blinking and can go sleep.
@@ -258,7 +259,7 @@ void loop() {
         
         
         //if game starts, we go to phase 2, where the pattern will be shown. 
-        phase = 2;
+        phase = RANDOM_LED;
         break;
       }
     case RANDOM_LED:
@@ -277,7 +278,7 @@ void loop() {
           in quanto, se viene schiacciato il bottone il programma deve andare
           nella phase 5
         */
-        phase = 3;
+        phase = CLICK_BUTTONS;
         disableAllInterrupts();
         resetSeq();
         Serial.println("GO!");
@@ -305,16 +306,16 @@ void loop() {
           //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButtonPressed()) {
             wrongButton = false;
-            phase = 5;
+            phase = LOSS;
             break;
           }
         } while (millis() - time < T3 && !checkWin());
         delay(1000);
         lightOut();
         if (checkWin()) {
-          phase = 4;
+          phase = WIN;
         } else {
-          phase = 5;
+          phase = LOSS;
         }
         break;
       }
@@ -327,7 +328,7 @@ void loop() {
         T3 /= factor;
         Serial.print("New point! Score: ");
         Serial.println(points);
-        phase = 2;
+        phase = RANDOM_LED;
         break;
       }
     //lose situation
@@ -342,15 +343,15 @@ void loop() {
         digitalWrite(LED_WHITE, LOW);
         delay(1000);
         if (life == 0) {
-          phase = 0;
+          phase = SETUP;
           Serial.println("YOU LOST");
         } else {
-          phase = 2;
+          phase = RANDOM_LED;
         }
         break;
       }
     default:
-      phase = 0;
+      phase = SETUP;
       break;
   }
 }
