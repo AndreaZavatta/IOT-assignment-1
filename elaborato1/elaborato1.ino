@@ -95,10 +95,7 @@ void pressBtn(int led) {
   }
 }
 
-void gameOver(){
-  phase = LOSS;
-  doDelay = false;
-}
+
 
 void pressGreen() {
   pressBtn(LED_GREEN);
@@ -193,12 +190,6 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_BLUE, pressBlue, FALLING);
   enableInterrupt(BTN_ORANGE, pressOrange, FALLING);
 }
-void enableInterruptForGameover(){
-  enableInterrupt(BTN_GREEN, gameOver, CHANGE);
-  enableInterrupt(BTN_YELLOW, gameOver, CHANGE);
-  enableInterrupt(BTN_BLUE, gameOver, CHANGE);
-  enableInterrupt(BTN_ORANGE, gameOver, CHANGE);
-}
 
 bool wrongButtonPressed() {
   return wrongButton;
@@ -252,36 +243,28 @@ void loop() {
         Serial.println(difficulty);
         //if game starts, we go to phase 2, where the pattern will be shown. 
         phase = RANDOM_LED;
+        //time
         break;
       }
     case RANDOM_LED:
       {
+        
         resetSeq();
-        /*
-          in questa fase vengono mostrati i led casuali
-          quindi non possiamo schiacciare nessun bottone
-          la variabile doDelay viene impostata qui a true,
-          e viene modificata a false dall'interrupt in caso venga schiacciato
-          un bottone (la funzione dell'interrupt si chiama gameOver())
-        */
-        doDelay = true;
-        /*
-          phase = 3 lo setto in questo punto, non si può settare sotto
-          perchè la phase potrebbe essere modificata dall'interrupt
-          in quanto, se viene schiacciato il bottone il programma deve andare
-          nella phase 5
-        */
-        phase = CLICK_BUTTONS;
         disableAllInterrupts();
         Serial.println("GO!");
         delay(T1);
-        enableInterruptForGameover();
         int num = randomSeq();
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
         long int time = millis();
-        while(millis()-time < T2 && doDelay){}
+        phase = CLICK_BUTTONS;
+        while(millis()-time < T2 && phase == CLICK_BUTTONS){
+          if (digitalRead(BTN_BLUE)==HIGH || digitalRead(BTN_GREEN)==HIGH ||
+          digitalRead(BTN_ORANGE)==HIGH || digitalRead(BTN_YELLOW)==HIGH){
+            phase = LOSS;
+          }
+        }
         lightOut();
         break;
       }
@@ -310,7 +293,6 @@ void loop() {
         }
         break;
       }
-
     //win situation
     case WIN:
       {
