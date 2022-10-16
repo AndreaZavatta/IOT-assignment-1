@@ -137,7 +137,7 @@ void changeSleep() {
 
 void game() {
   long ts = micros();
-  if (ts - prevts > 200000) {
+  if (ts - prevts > 400000) {
     if (sleeping) {
       changeSleep();
     } else {
@@ -187,10 +187,10 @@ void enableInterruptForStartingGame() {
 }
 
 void enableInterruptForSequence() {
-  enableInterrupt(BTN_GREEN, pressGreen, CHANGE);
-  enableInterrupt(BTN_YELLOW, pressYellow, CHANGE);
-  enableInterrupt(BTN_BLUE, pressBlue, CHANGE);
-  enableInterrupt(BTN_ORANGE, pressOrange, CHANGE);
+  enableInterrupt(BTN_GREEN, pressGreen, FALLING);
+  enableInterrupt(BTN_YELLOW, pressYellow, FALLING);
+  enableInterrupt(BTN_BLUE, pressBlue, FALLING);
+  enableInterrupt(BTN_ORANGE, pressOrange, FALLING);
 }
 void enableInterruptForGameover(){
   enableInterrupt(BTN_GREEN, gameOver, CHANGE);
@@ -209,21 +209,13 @@ void setup() {
   phase = SETUP;
 }
 
-/*
-#define SETUP 0;
-#define LED_BLINKING 1;
-#define RANDOM_LED 2;
-#define CLICK_BUTTONS 3;
-#define WIN 4;
-#define LOSS 5;
-*/
 void loop() {
   switch (phase) {
     //setup the game variables and all other things you will need to reset when you lose.
     //this case will be called when game over.
-    //should be complete.
     case SETUP:
       {
+        resetSeq();
         enableInterruptForStartingGame();
         //mettere T1,T2,T3 e factor casuali! 
         T1 = 2000;
@@ -264,6 +256,7 @@ void loop() {
       }
     case RANDOM_LED:
       {
+        resetSeq();
         /*
           in questa fase vengono mostrati i led casuali
           quindi non possiamo schiacciare nessun bottone
@@ -280,17 +273,17 @@ void loop() {
         */
         phase = CLICK_BUTTONS;
         disableAllInterrupts();
-        resetSeq();
+        
         Serial.println("GO!");
         delay(T1);
+        enableInterruptForGameover(); 
         int num = randomSeq();
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-        
-        enableInterruptForGameover();       
+              
         long int time = millis();
-        while(millis()-time<T2 && doDelay){} 
+        while(millis()-time < T2 && doDelay){}
         lightOut();
         break;
       }
@@ -310,7 +303,7 @@ void loop() {
             break;
           }
         } while (millis() - time < T3 && !checkWin());
-        delay(1000);
+        delay(250);
         lightOut();
         if (checkWin()) {
           phase = WIN;
@@ -324,8 +317,8 @@ void loop() {
     case WIN:
       {
         points++;
-        T2 /= factor;
-        T3 /= factor;
+        //T2 /= factor;
+        //T3 /= factor;
         Serial.print("New point! Score: ");
         Serial.println(points);
         phase = RANDOM_LED;
