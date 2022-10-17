@@ -21,6 +21,13 @@
 #define CLICK_BUTTONS 3
 #define WIN 4
 #define LOSS 5
+#define T1_MIN 500
+#define T1_MAX 10000
+#define T2_MIN 500
+#define T2_MAX 10000
+#define T3_MIN 2000
+#define T3_MAX 20000
+#define T_RANGE 5000
 
 
 bool doDelay;
@@ -53,10 +60,10 @@ void loop() {
       {
         resetSeq();
         enableInterruptForStartingGame();
-        //mettere T1,T2,T3 e factor casuali!
-        T1 = 2000;
-        T2 = 5000;
-        T3 = 10000;
+        //Randomly chooses the times between their max and their starting range.
+        T1 = random(T1_MAX-T_RANGE, T1_MAX+1);
+        T2 = random(T2_MAX-T_RANGE, T2_MAX+1);
+        T3 = random(T3_MAX-T_RANGE, T3_MAX+1);
         life = 3;
         points = 0;
         sleeping = false;
@@ -138,8 +145,19 @@ void loop() {
       {
         points++;
         // x% di T2
+        // Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
+        T1 = T1 - (T1 * difficulty / 10);
+        if (T1 < T1_MIN) {
+          T1 = T1_MIN;
+        }
         T2 = T2 - (T2 * difficulty / 10);
+        if (T2 < T2_MIN) {
+          T2 = T2_MIN;
+        }
         T3 = T3 - (T3 * difficulty / 10);
+        if (T3 < T3_MIN) {
+          T3 = T3_MIN;
+        }
         Serial.print("New point! Score: ");
         Serial.println(points);
         phase = RANDOM_LED;
