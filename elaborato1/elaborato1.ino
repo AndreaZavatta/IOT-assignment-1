@@ -168,7 +168,7 @@ void loop() {
       {
         lightOut();
         life--;
-        Serial.println("hai perso una vita, ti sono rimaste " + (String)life + " vite");
+        Serial.println("You lost one Life! You have " + (String)life + " Lives left");
         digitalWrite(LED_WHITE, HIGH);
         delay(2000);
         digitalWrite(LED_WHITE, LOW);
