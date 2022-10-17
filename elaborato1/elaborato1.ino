@@ -2,33 +2,6 @@
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "./header.h"
-#define BTN_BLUE 11
-#define BTN_GREEN 10
-#define BTN_ORANGE 9
-#define BTN_YELLOW 8
-#define LED_BLUE 7
-#define LED_GREEN 6
-#define LED_ORANGE 5
-#define LED_YELLOW 4
-#define LED_WHITE 3
-#define MIN_BRIGHTNESS 0
-#define MAX_BRIGHTNESS 255
-#define PORT 9600
-#define LED_NUMBER 4
-#define SETUP 0
-#define LED_BLINKING 1
-#define RANDOM_LED 2
-#define CLICK_BUTTONS 3
-#define WIN 4
-#define LOSS 5
-#define T1_MIN 500
-#define T1_MAX 10000
-#define T2_MIN 500
-#define T2_MAX 10000
-#define T3_MIN 2000
-#define T3_MAX 20000
-#define T_RANGE 5000
-
 
 bool doDelay;
 bool sleeping;
@@ -38,6 +11,7 @@ int fadeamount = 5;
 bool gamestart;
 long prevts = 0;
 int generated[LED_NUMBER];
+int selected[LED_NUMBER];
 int T1;
 int T2;
 int T3;
@@ -62,8 +36,8 @@ void loop() {
         enableInterruptForStartingGame();
         //Randomly chooses the times between their max and their starting range.
         T1 = random(T1_MAX-T_RANGE, T1_MAX+1);
-        T2 = random(T2_MAX-T_RANGE, T2_MAX+1);
-        T3 = random(T3_MAX-T_RANGE, T3_MAX+1);
+        T2 = 4000;
+        T3 = 4000;
         life = 3;
         points = 0;
         sleeping = false;
@@ -129,6 +103,18 @@ void loop() {
             disableAllInterrupts();
             break;
           }
+          /*if (digitalRead(BTN_BLUE) == HIGH) {
+            pressBlue();
+          }
+          if (digitalRead(BTN_GREEN) == HIGH) {
+            pressGreen();
+          }
+          if (digitalRead(BTN_ORANGE) == HIGH) {
+            pressOrange();
+          }
+          if (digitalRead(BTN_YELLOW) == HIGH) {
+            pressYellow();
+          }*/
         } while (millis() - time < T3 && !checkWin());
         disableAllInterrupts();
         delay(250);
@@ -172,11 +158,12 @@ void loop() {
         digitalWrite(LED_WHITE, HIGH);
         delay(2000);
         digitalWrite(LED_WHITE, LOW);
-        delay(1000);
         if (life == 0) {
           phase = SETUP;
           Serial.println("YOU LOST");
+          delay(10000);
         } else {
+          delay(1000);
           phase = RANDOM_LED;
         }
         break;
@@ -245,16 +232,12 @@ void pressBlue() {
 }
 
 void pressBtn(int led) {
-  long ts = micros();
-  if (ts - prevts > 200000) {
-    int i = checkLed(led);
-    digitalWrite(led, HIGH);
-    if (i != -1) {
-      generated[i] = 0;
-    } else {
-      setWrongButton();
-    }
-    prevts = ts;
+  int i = checkLed(led);
+  digitalWrite(led, HIGH);
+  if (i != -1) {
+    generated[i] = 0;
+  } else {
+    setWrongButton();
   }
 }
 
@@ -335,6 +318,3 @@ void enableInterruptForSequence() {
   enableInterrupt(BTN_BLUE, pressBlue, FALLING);
   enableInterrupt(BTN_ORANGE, pressOrange, FALLING);
 }
-
-/*la casualità del T1,T2,T3 e del factor (guardare la phase SETUP nel loop)
-mancano poi le print giuste*/
