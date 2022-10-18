@@ -1,4 +1,8 @@
-// C++ code
+/*authors: 
+Lorenzo Tosi - lorenzo.tosi10@studio.unibo.it - 0000997569
+Andrea Zavatta - andrea.zavatta3@studio.uninbo.it - 0000989124
+Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
+*/
 #include <EnableInterrupt.h>
 #include <avr/sleep.h>
 #include "./header.h"

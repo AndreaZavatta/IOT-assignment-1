@@ -1,5 +1,8 @@
-//authors: Lorenzo Tosi - lorenzo.tosi10@studio.unibo.it - 0000997569
-
+/*authors: 
+Lorenzo Tosi - lorenzo.tosi10@studio.unibo.it - 0000997569
+Andrea Zavatta - andrea.zavatta3@studio.uninbo.it - 0000989124
+Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
+*/
 #define BTN_BLUE 11
 #define BTN_GREEN 10
 #define BTN_ORANGE 9
