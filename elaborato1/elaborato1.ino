@@ -152,6 +152,8 @@ void loop() {
         digitalWrite(LED_WHITE, LOW);
         if (life == 0) {
           phase = SETUP;
+          Serial.print("Game Over. Final Score: ");
+          Serial.println(points);
           delay(10000);
         } else {
           delay(1000);
