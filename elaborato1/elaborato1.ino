@@ -103,18 +103,6 @@ void loop() {
             disableAllInterrupts();
             break;
           }
-          /*if (digitalRead(BTN_BLUE) == HIGH) {
-            pressBlue();
-          }
-          if (digitalRead(BTN_GREEN) == HIGH) {
-            pressGreen();
-          }
-          if (digitalRead(BTN_ORANGE) == HIGH) {
-            pressOrange();
-          }
-          if (digitalRead(BTN_YELLOW) == HIGH) {
-            pressYellow();
-          }*/
         } while (millis() - time < T3 && !checkWin());
         disableAllInterrupts();
         delay(250);
@@ -154,13 +142,12 @@ void loop() {
       {
         lightOut();
         life--;
-        Serial.println("You lost one Life! You have " + (String)life + " Lives left");
+        Serial.println("Penality!");
         digitalWrite(LED_WHITE, HIGH);
         delay(2000);
         digitalWrite(LED_WHITE, LOW);
         if (life == 0) {
           phase = SETUP;
-          Serial.println("YOU LOST");
           delay(10000);
         } else {
           delay(1000);
@@ -187,13 +174,10 @@ void setWrongButton() {
 
 void sleep() {
   sleeping = true;
-  Serial.println("dormendo");
-  Serial.flush();
   digitalWrite(LED_WHITE, LOW);
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
-  Serial.println("sveglio");
   sleep_disable();
 }
 
@@ -306,10 +290,10 @@ void setPin() {
 }
 
 void enableInterruptForStartingGame() {
-  enableInterrupt(BTN_YELLOW, changeSleep, CHANGE);
+  enableInterrupt(BTN_YELLOW, game, CHANGE);
   enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
   enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
-  enableInterrupt(BTN_BLUE, game, CHANGE);
+  enableInterrupt(BTN_BLUE, changeSleep, CHANGE);
 }
 
 void enableInterruptForSequence() {
