@@ -7,7 +7,6 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #include <avr/sleep.h>
 #include "./header.h"
 
-long int time;
 bool sleeping;
 int difficulty;  //the factor F
 int brightness = 0;
@@ -38,10 +37,10 @@ void loop() {
       {
         resetSeq();
         setVariables();
-        phase = FADING;
         Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
         enableInterruptForStartingGame();
         startSec = millis();
+        phase = FADING;
         break;
       }
     case FADING:
@@ -80,7 +79,7 @@ void loop() {
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-        time = millis();
+        startSec = millis();
         //startSec=millis();
         phase = WAIT_RANDOM_LED;
 
@@ -88,25 +87,23 @@ void loop() {
       }
     case WAIT_RANDOM_LED:
       {
-        if (millis() - time < T2) {
+        if (millis() - startSec < T2) {
           if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
             phase = LOSS;
           }
         } else {
-          phase = CLICK_BUTTONS;
+          phase = WRONG_BUTTON;
+          lightOut();
+          disableAllInterrupts();
+          enableInterruptForSequence();
+          startSec = millis();
         }
         break;
       }
-    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
-    //if you correctly recreate the pattern you will go to the win section (5)
-    //if you dont do the pattern in time you will go to the lose section (6)
-    case CLICK_BUTTONS:
+      
+      case WRONG_BUTTON:
       {
-        lightOut();
-        disableAllInterrupts();
-        enableInterruptForSequence();
-        long time = millis();
-        do {
+        if(millis() - startSec < T3 && !checkWin()){
           //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButton) {
             wrongButton = false;
@@ -114,7 +111,15 @@ void loop() {
             disableAllInterrupts();
             break;
           }
-        } while (millis() - time < T3 && !checkWin());
+        }else{
+          phase = CLICK_BUTTONS;
+        }
+      }
+    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
+    //if you correctly recreate the pattern you will go to the win section (5)
+    //if you dont do the pattern in time you will go to the lose section (6)
+    case CLICK_BUTTONS:
+      {
         disableAllInterrupts();
         delay(250);
         lightOut();
