@@ -57,7 +57,7 @@ void loop() {
         //blinking red led, waiting for start game.
         if (!gamestart) {
           sleep();
-          phase = FALLING;
+          phase = FADING;
           startSec = millis();
         } else {
           digitalWrite(LED_WHITE, LOW);
