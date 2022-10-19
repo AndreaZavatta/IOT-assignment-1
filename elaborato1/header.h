@@ -20,9 +20,10 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #define FADING 1
 #define SLEEP 2
 #define RANDOM_LED 3
-#define CLICK_BUTTONS 4
-#define WIN 5
-#define LOSS 6
+#define WAIT_RANDOM_LED 4
+#define CLICK_BUTTONS 5
+#define WIN 6
+#define LOSS 7
 #define T1_MIN 500
 #define T1_MAX 5000
 #define T2_MIN 100
