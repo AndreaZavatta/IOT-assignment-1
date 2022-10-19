@@ -21,7 +21,7 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #define SLEEP 2
 #define RANDOM_LED 3
 #define WAIT_RANDOM_LED 4
-#define WRONG_BUTTON 5
+#define CHECK_BUTTON 5
 #define CLICK_BUTTONS 6
 #define WIN 7
 #define LOSS 8

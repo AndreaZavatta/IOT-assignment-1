@@ -32,7 +32,6 @@ void setup() {
 void loop() {
   switch (phase) {
     //setup the game variables and all other things you will need to reset when you lose.
-    //this case will be called when game over.
     case SETUP:
       {
         resetSeq();
@@ -43,6 +42,9 @@ void loop() {
         phase = FADING;
         break;
       }
+    // Fading phase:
+    //where the led keeps fading until the 10-second time runs out
+    //or the player has clicked the button, to start the game
     case FADING:
       {
         if (millis() - startSec < 10000 && !gamestart) {
@@ -52,7 +54,10 @@ void loop() {
         }
         break;
       }
-    //this is the idle phase, when the led is blinking and can go sleep.
+    //Sleep phase:
+    //if the player has not clicked button 1, then the game has not started
+    //and we return to the Fading phase by resetting the timer
+    //otherwise, turn off LED_WHITE and set the difficulty
     case SLEEP:
       {
         //blinking red led, waiting for start game.
@@ -69,6 +74,8 @@ void loop() {
         }
         break;
       }
+    //Random phase:
+    //displays the sequence of random LEDs to be executed
     case RANDOM_LED:
       {
         resetSeq();
@@ -80,14 +87,19 @@ void loop() {
         phase = WAIT_RANDOM_LED;
         break;
       }
+      //WAIT_RANDOM_LED phase:
+      //while you are viewing the random sequence,
+      //if you click on a button, then you go to the phase loss
+      //if not, we continue
+
     case WAIT_RANDOM_LED:
       {
         if (millis() - startSec < T2) {
-          if (thereIsALedOn()) {
+          if (clickAButton()) {
             phase = LOSS;
           }
         } else {
-          phase = WRONG_BUTTON;
+          phase = CHECK_BUTTON;
           lightOut();
           disableAllInterrupts();
           enableInterruptForSequence();
@@ -95,11 +107,11 @@ void loop() {
         }
         break;
       }
-
-    case WRONG_BUTTON:
+    //CHECK_BUTTON phase:
+    //checks whether in the phase where buttons are to be typed, the player has pressed //a wrong button, in which case he is sent to the LOSS phase
+    case CHECK_BUTTON:
       {
         if (millis() - startSec < T3 && !checkWin()) {
-          //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButton) {
             wrongButton = false;
             phase = LOSS;
@@ -110,9 +122,9 @@ void loop() {
         }
         break;
       }
-    //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
-    //if you correctly recreate the pattern you will go to the win section (5)
-    //if you dont do the pattern in time you will go to the lose section (6)
+    //CLICK_BUTTON phase
+    //if you correctly recreate the pattern you will go to the WIN phase
+    //if you dont do the pattern in time you will go to the LOSS phase
     case CLICK_BUTTONS:
       {
         disableAllInterrupts();
@@ -125,7 +137,10 @@ void loop() {
         }
         break;
       }
-    //win situation
+    //WIN phase
+    //Reduces T2 and T3 time to increase difficulty ,
+    //increases the score 
+    //and returns to the stage devoted to random led generation.
     case WIN:
       {
         points++;
@@ -136,7 +151,9 @@ void loop() {
         phase = RANDOM_LED;
         break;
       }
-    //lose situation
+    //LOSS phase
+    //takes away one life 
+    //and checks whether the player has any life left or has lost.
     case LOSS:
       {
         lightOut();
@@ -161,13 +178,14 @@ void loop() {
       break;
   }
 }
+
 void switchOnRandomLeds() {
   int num = randomSeq();
   for (int i = 0; i < num; i++) {
     digitalWrite(generated[i], HIGH);
   }
 }
-bool thereIsALedOn() {
+bool clickAButton() {
   return digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH;
 }
 
