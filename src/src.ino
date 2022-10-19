@@ -65,7 +65,6 @@ void loop() {
           digitalWrite(LED_WHITE, LOW);
           //read potenziometro.
           difficulty = (analogRead(A5) / 256) + 1;
-          Serial.println(difficulty);
           //if game starts, we go to phase 2, where the pattern will be shown.
           phase = RANDOM_LED;
         }
@@ -143,9 +142,7 @@ void loop() {
       {
         points++;
         T2 = reduceByFactor(T2, difficulty, T2_MIN);
-        Serial.println(T2);
         T3 = reduceByFactor(T3, difficulty, T3_MIN);
-        Serial.println(T3);
         Serial.print("New point! Score: ");
         Serial.println(points);
         phase = RANDOM_LED;

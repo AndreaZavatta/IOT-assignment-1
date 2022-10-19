@@ -36,7 +36,7 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 
 void switchOnRandomLeds();
 
-bool thereIsALedOn();
+bool clickAButton();
 
 int reduceByFactor(long int temp, int difficulty, long int min_temp);
 
@@ -79,9 +79,5 @@ void setPin();
 void enableInterruptForStartingGame();
 
 void enableInterruptForSequence();
-
-bool wrongButtonPressed();
-
-bool clickAButton();
 
 #endif
