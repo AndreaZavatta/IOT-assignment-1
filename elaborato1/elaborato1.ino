@@ -109,11 +109,11 @@ void loop() {
             wrongButton = false;
             phase = LOSS;
             disableAllInterrupts();
-            break;
           }
         }else{
           phase = CLICK_BUTTONS;
         }
+        break;
       }
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
     //if you correctly recreate the pattern you will go to the win section (5)
