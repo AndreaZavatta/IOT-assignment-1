@@ -31,6 +31,10 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #define T3_MIN 1000
 #define T_RANGE 2000
 
+void switchOnRandomLeds();
+
+bool thereIsALedOn();
+
 int reduceByFactor(long int temp, int difficulty, long int min_temp);
 
 void setVariables();

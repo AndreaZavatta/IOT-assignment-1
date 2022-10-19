@@ -75,20 +75,15 @@ void loop() {
         disableAllInterrupts();
         Serial.println("GO!");
         delay(T1);
-        int num = randomSeq();
-        for (int i = 0; i < num; i++) {
-          digitalWrite(generated[i], HIGH);
-        }
+        switchOnRandomLeds();
         startSec = millis();
-        //startSec=millis();
         phase = WAIT_RANDOM_LED;
-
         break;
       }
     case WAIT_RANDOM_LED:
       {
         if (millis() - startSec < T2) {
-          if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
+          if (thereIsALedOn()) {
             phase = LOSS;
           }
         } else {
@@ -100,17 +95,17 @@ void loop() {
         }
         break;
       }
-      
-      case WRONG_BUTTON:
+
+    case WRONG_BUTTON:
       {
-        if(millis() - startSec < T3 && !checkWin()){
+        if (millis() - startSec < T3 && !checkWin()) {
           //if you click the wrong button the else in the pressBtn will be triggered.
           if (wrongButton) {
             wrongButton = false;
             phase = LOSS;
             disableAllInterrupts();
           }
-        }else{
+        } else {
           phase = CLICK_BUTTONS;
         }
         break;
@@ -134,8 +129,6 @@ void loop() {
     case WIN:
       {
         points++;
-
-        T1 = reduceByFactor(T1, difficulty, T1_MIN);
         T2 = reduceByFactor(T2, difficulty, T2_MIN);
         T3 = reduceByFactor(T3, difficulty, T3_MIN);
         Serial.print("New point! Score: ");
@@ -167,6 +160,15 @@ void loop() {
       phase = SETUP;
       break;
   }
+}
+void switchOnRandomLeds() {
+  int num = randomSeq();
+  for (int i = 0; i < num; i++) {
+    digitalWrite(generated[i], HIGH);
+  }
+}
+bool thereIsALedOn() {
+  return digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH;
 }
 
 // Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
