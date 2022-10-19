@@ -40,6 +40,7 @@ void loop() {
         Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
         enableInterruptForStartingGame();
         startSec = millis();
+        phase = FADING;
         break;
       }
     case FADING:
@@ -78,14 +79,40 @@ void loop() {
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-        long int time = millis();
-        phase = CLICK_BUTTONS;
-        while (millis() - time < T2 && phase == CLICK_BUTTONS) {
+        startSec = millis();
+        //startSec=millis();
+        phase = WAIT_RANDOM_LED;
+
+        break;
+      }
+    case WAIT_RANDOM_LED:
+      {
+        if (millis() - startSec < T2) {
           if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
             phase = LOSS;
           }
+        } else {
+          phase = WRONG_BUTTON;
+          lightOut();
+          disableAllInterrupts();
+          enableInterruptForSequence();
+          startSec = millis();
         }
-        lightOut();
+        break;
+      }
+      
+      case WRONG_BUTTON:
+      {
+        if(millis() - startSec < T3 && !checkWin()){
+          //if you click the wrong button the else in the pressBtn will be triggered.
+          if (wrongButton) {
+            wrongButton = false;
+            phase = LOSS;
+            disableAllInterrupts();
+          }
+        }else{
+          phase = CLICK_BUTTONS;
+        }
         break;
       }
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
@@ -93,18 +120,6 @@ void loop() {
     //if you dont do the pattern in time you will go to the lose section (6)
     case CLICK_BUTTONS:
       {
-        disableAllInterrupts();
-        enableInterruptForSequence();
-        long time = millis();
-        do {
-          //if you click the wrong button the else in the pressBtn will be triggered.
-          if (wrongButton) {
-            wrongButton = false;
-            phase = LOSS;
-            disableAllInterrupts();
-            break;
-          }
-        } while (millis() - time < T3 && !checkWin());
         disableAllInterrupts();
         delay(250);
         lightOut();
@@ -173,7 +188,7 @@ void setVariables() {
   gamestart = false;
   randomSeed(analogRead(A0));
   //after setting up all variables i can go to the phase 1 of the game.
-  phase = FADING;
+  //phase = FADING;
 }
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
