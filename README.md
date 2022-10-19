@@ -16,9 +16,3 @@ https://user-images.githubusercontent.com/77069789/196735650-5ab06d70-e9d8-46f0-
   * sleep.h
   * EnableInterrupt.h
 * upload the code
-
-# HOW TO CONTRIBUTE
-
-* fork the repository
-* make the desired changes
-* create a pull request
