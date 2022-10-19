@@ -7,7 +7,6 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #include <avr/sleep.h>
 #include "./header.h"
 
-bool doDelay;
 bool sleeping;
 int difficulty;  //the factor F
 int brightness = 0;
@@ -15,7 +14,6 @@ int fadeamount = 5;
 bool gamestart;
 long prevts = 0;
 int generated[LED_NUMBER];
-int selected[LED_NUMBER];
 int T1;
 int T2;
 int T3;
@@ -23,7 +21,7 @@ int phase;
 int life;
 int points;
 bool wrongButton = false;
-long startSec = millis();
+long startSec;
 
 void setup() {
   Serial.begin(PORT);
@@ -38,25 +36,30 @@ void loop() {
     case SETUP:
       {
         resetSeq();
-        enableInterruptForStartingGame();
         setVariables();
         Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
+        enableInterruptForStartingGame();
+        //delay(500);
+        startSec = millis();
         break;
       }
     case SLEEP:
-    {
-      if(millis() - startSec < 10000 && !gamestart){
-        fading();
-      }else{
-        phase=LED_BLINKING;
+      {
+        if (millis() - startSec < 10000 && !gamestart) {
+          fading();
+        } else {
+          phase = LED_BLINKING;
+        }
+        break;
       }
-    }
     //this is the idle phase, when the led is blinking and can go sleep.
     case LED_BLINKING:
       {
         //blinking red led, waiting for start game.
         if (!gamestart) {
           sleep();
+          phase = SLEEP;
+          startSec = millis();
         } else {
           digitalWrite(LED_WHITE, LOW);
           //read potenziometro.
@@ -153,7 +156,7 @@ void loop() {
 }
 
 // Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
-int reduceByFactor(long int temp, int difficulty, long int min_temp){
+int reduceByFactor(long int temp, int difficulty, long int min_temp) {
   int temp2 = temp - (temp * difficulty / 10);
   if (temp2 < min_temp) {
     temp2 = min_temp;
@@ -191,6 +194,7 @@ void sleep() {
   sleep_enable();
   sleep_mode();
   sleep_disable();
+  //startSec = millis();
 }
 
 bool checkWin() {
@@ -302,10 +306,10 @@ void setPin() {
 }
 
 void enableInterruptForStartingGame() {
-  enableInterrupt(BTN_YELLOW, game, CHANGE);
-  enableInterrupt(BTN_ORANGE, changeSleep, CHANGE);
-  enableInterrupt(BTN_GREEN, changeSleep, CHANGE);
-  enableInterrupt(BTN_BLUE, changeSleep, CHANGE);
+  enableInterrupt(BTN_YELLOW, game, FALLING);
+  enableInterrupt(BTN_ORANGE, changeSleep, FALLING);
+  enableInterrupt(BTN_GREEN, changeSleep, FALLING);
+  enableInterrupt(BTN_BLUE, changeSleep, FALLING);
 }
 
 void enableInterruptForSequence() {
