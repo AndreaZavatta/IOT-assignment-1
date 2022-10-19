@@ -39,21 +39,20 @@ void loop() {
         setVariables();
         Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
         enableInterruptForStartingGame();
-        //delay(500);
         startSec = millis();
         break;
       }
-    case SLEEP:
+    case FADING:
       {
         if (millis() - startSec < 10000 && !gamestart) {
           fading();
         } else {
-          phase = LED_BLINKING;
+          phase = SLEEP;
         }
         break;
       }
     //this is the idle phase, when the led is blinking and can go sleep.
-    case LED_BLINKING:
+    case SLEEP:
       {
         //blinking red led, waiting for start game.
         if (!gamestart) {
@@ -174,7 +173,7 @@ void setVariables() {
   gamestart = false;
   randomSeed(analogRead(A0));
   //after setting up all variables i can go to the phase 1 of the game.
-  phase = SLEEP;
+  phase = FADING;
 }
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
