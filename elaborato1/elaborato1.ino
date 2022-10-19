@@ -7,6 +7,7 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #include <avr/sleep.h>
 #include "./header.h"
 
+long int time;
 bool sleeping;
 int difficulty;  //the factor F
 int brightness = 0;
@@ -37,6 +38,7 @@ void loop() {
       {
         resetSeq();
         setVariables();
+        phase = FADING;
         Serial.println("Welcome to the Catch the Led Pattern Game. Press Key T1 to Start");
         enableInterruptForStartingGame();
         startSec = millis();
@@ -78,14 +80,21 @@ void loop() {
         for (int i = 0; i < num; i++) {
           digitalWrite(generated[i], HIGH);
         }
-        long int time = millis();
-        phase = CLICK_BUTTONS;
-        while (millis() - time < T2 && phase == CLICK_BUTTONS) {
+        time = millis();
+        //startSec=millis();
+        phase = WAIT_RANDOM_LED;
+
+        break;
+      }
+    case WAIT_RANDOM_LED:
+      {
+        if (millis() - time < T2) {
           if (digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH) {
             phase = LOSS;
           }
+        } else {
+          phase = CLICK_BUTTONS;
         }
-        lightOut();
         break;
       }
     //in this phase you will have to click the buttons. if you click the wrong button you will immediatly go to the lose section (6)
@@ -93,6 +102,7 @@ void loop() {
     //if you dont do the pattern in time you will go to the lose section (6)
     case CLICK_BUTTONS:
       {
+        lightOut();
         disableAllInterrupts();
         enableInterruptForSequence();
         long time = millis();
@@ -173,7 +183,7 @@ void setVariables() {
   gamestart = false;
   randomSeed(analogRead(A0));
   //after setting up all variables i can go to the phase 1 of the game.
-  phase = FADING;
+  //phase = FADING;
 }
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
