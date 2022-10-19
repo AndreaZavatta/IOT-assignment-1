@@ -9,7 +9,7 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 
 bool doDelay;
 bool sleeping;
-int difficulty;//the factor F
+int difficulty;  //the factor F
 int brightness = 0;
 int fadeamount = 5;
 bool gamestart;
@@ -38,17 +38,7 @@ void loop() {
       {
         resetSeq();
         enableInterruptForStartingGame();
-        //Randomly chooses the times between their max and their starting range.
-        T1 = random(T1_MAX-T_RANGE, T1_MAX+1);
-        T2 = 4000;
-        T3 = 4000;
-        life = 3;
-        points = 0;
-        sleeping = false;
-        gamestart = false;
-        randomSeed(analogRead(A0));
-        //after setting up all variables i can go to the phase 1 of the game.
-        phase = LED_BLINKING;
+        setVariables();
         break;
       }
     //this is the idle phase, when the led is blinking and can go sleep.
@@ -122,20 +112,10 @@ void loop() {
     case WIN:
       {
         points++;
-        // x% di T2
-        // Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
-        T1 = T1 - (T1 * difficulty / 10);
-        if (T1 < T1_MIN) {
-          T1 = T1_MIN;
-        }
-        T2 = T2 - (T2 * difficulty / 10);
-        if (T2 < T2_MIN) {
-          T2 = T2_MIN;
-        }
-        T3 = T3 - (T3 * difficulty / 10);
-        if (T3 < T3_MIN) {
-          T3 = T3_MIN;
-        }
+
+        T1 = reduceByFactor(T1, difficulty, T1_MIN);
+        T2 = reduceByFactor(T2, difficulty, T2_MIN);
+        T3 = reduceByFactor(T3, difficulty, T3_MIN);
         Serial.print("New point! Score: ");
         Serial.println(points);
         phase = RANDOM_LED;
@@ -167,6 +147,27 @@ void loop() {
   }
 }
 
+// Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
+int reduceByFactor(long int temp, int difficulty, long int min_temp){
+  int temp2 = temp - (temp * difficulty / 10);
+  if (temp2 < min_temp) {
+    temp2 = min_temp;
+  }
+  return temp2;
+}
+void setVariables() {
+  //Randomly chooses the times between their max and their starting range.
+  T1 = random(T1_MAX - T_RANGE, T1_MAX + 1);
+  T2 = 4000;
+  T3 = 4000;
+  life = 3;
+  points = 0;
+  sleeping = false;
+  gamestart = false;
+  randomSeed(analogRead(A0));
+  //after setting up all variables i can go to the phase 1 of the game.
+  phase = LED_BLINKING;
+}
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
   disableInterrupt(BTN_YELLOW);
