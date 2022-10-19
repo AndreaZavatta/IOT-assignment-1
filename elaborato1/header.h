@@ -28,6 +28,10 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #define T3_MIN 1000
 #define T_RANGE 2000
 
+int reduceByFactor(long int temp, int difficulty, long int min_temp);
+
+void setVariables();
+
 void disableAllInterrupts();
 
 void setWrongButton();
@@ -67,3 +71,4 @@ void enableInterruptForStartingGame();
 void enableInterruptForSequence();
 
 bool wrongButtonPressed();
+
