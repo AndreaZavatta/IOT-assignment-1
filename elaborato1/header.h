@@ -36,7 +36,7 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 
 void switchOnRandomLeds();
 
-bool thereIsALedOn();
+bool clickAButton();
 
 int reduceByFactor(long int temp, int difficulty, long int min_temp);
 
@@ -52,8 +52,6 @@ bool checkWin();
 
 int checkLed(int led);
 
-void pressBtn(int led);
-
 void pressGreen();
 
 void pressYellow();
@@ -62,13 +60,15 @@ void pressOrange();
 
 void pressBlue();
 
+void pressBtn(int led);
+
 void lightOut();
 
 void fading();
 
-void changeSleep();
-
 void game();
+
+void changeSleep();
 
 int randomSeq();
 
@@ -79,7 +79,3 @@ void setPin();
 void enableInterruptForStartingGame();
 
 void enableInterruptForSequence();
-
-bool wrongButtonPressed();
-
-#endif

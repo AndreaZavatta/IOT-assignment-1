@@ -42,7 +42,7 @@ void loop() {
         phase = FADING;
         break;
       }
-    // Fading phase:
+    //Fading phase:
     //where the led keeps fading until the 10-second time runs out
     //or the player has clicked the button, to start the game
     case FADING:
@@ -91,7 +91,6 @@ void loop() {
       //while you are viewing the random sequence,
       //if you click on a button, then you go to the phase loss
       //if not, we continue
-
     case WAIT_RANDOM_LED:
       {
         if (millis() - startSec < T2) {
@@ -185,11 +184,13 @@ void switchOnRandomLeds() {
     digitalWrite(generated[i], HIGH);
   }
 }
+
 bool clickAButton() {
   return digitalRead(BTN_BLUE) == HIGH || digitalRead(BTN_GREEN) == HIGH || digitalRead(BTN_ORANGE) == HIGH || digitalRead(BTN_YELLOW) == HIGH;
 }
 
 // Reduces the times by a factor chosen with the difficulty. The times can't go lower than their minimum.
+
 int reduceByFactor(long int temp, int difficulty, long int min_temp) {
   int temp2 = temp - (temp * difficulty / 10);
   if (temp2 < min_temp) {
@@ -197,6 +198,7 @@ int reduceByFactor(long int temp, int difficulty, long int min_temp) {
   }
   return temp2;
 }
+
 void setVariables() {
   //Randomly chooses the times between their max and their starting range.
   T1 = random(T1_MAX - T_RANGE, T1_MAX + 1);
@@ -210,6 +212,7 @@ void setVariables() {
   //after setting up all variables i can go to the phase 1 of the game.
   //phase = FADING;
 }
+
 void disableAllInterrupts() {
   disableInterrupt(BTN_GREEN);
   disableInterrupt(BTN_YELLOW);
