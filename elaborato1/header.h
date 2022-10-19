@@ -17,11 +17,12 @@ Luca Pasini - luca.pasini9@studio.unibo.it - 0000987673
 #define PORT 9600
 #define LED_NUMBER 4
 #define SETUP 0
-#define LED_BLINKING 1
-#define RANDOM_LED 2
-#define CLICK_BUTTONS 3
-#define WIN 4
-#define LOSS 5
+#define SLEEP 1
+#define LED_BLINKING 2
+#define RANDOM_LED 3
+#define CLICK_BUTTONS 4
+#define WIN 5
+#define LOSS 6
 #define T1_MIN 500
 #define T1_MAX 5000
 #define T2_MIN 100
