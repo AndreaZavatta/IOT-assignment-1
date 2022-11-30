@@ -3,6 +3,7 @@
 ## VIDEO
 https://user-images.githubusercontent.com/77069789/196735650-5ab06d70-e9d8-46f0-8abf-00da6738412f.mp4
 
+To check the specifications <a href="https://docs.google.com/document/d/1Laz85KNlV7Ki7UdJ_EspSNRILhUkWMvhuiANpUSB98s/edit">click here</a>
 # PRE-REQUIREMENTS
 - Arduino
 - Arduino IDE
