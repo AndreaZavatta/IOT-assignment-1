@@ -1,4 +1,4 @@
-# IOT-assignment-1
+# Catch the led pattern
 
 ## VIDEO
 https://user-images.githubusercontent.com/77069789/196735650-5ab06d70-e9d8-46f0-8abf-00da6738412f.mp4
